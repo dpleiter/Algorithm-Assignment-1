@@ -1,4 +1,6 @@
 *.in
 *.out
 
+*.class
+
 processes.txt
