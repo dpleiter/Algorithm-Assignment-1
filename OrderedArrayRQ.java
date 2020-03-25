@@ -12,27 +12,51 @@ import java.lang.String;
  */
 public class OrderedArrayRQ implements Runqueue {
 
+    protected String array[];
+
     /**
      * Constructs empty queue
      */
     public OrderedArrayRQ() {
         // Implement Me
-
+        array = null;
     }  // end of OrderedArrayRQ()
 
 
     @Override
     public void enqueue(String procLabel, int vt) {
         // Implement me
+        int new_array_length = array.length + 1;
+        String temp_array[] = new String[new_array_length];
+        String enqueued_node = procLabel + "," + String.valueOf(vt); // could use Integer.toString() here
+
+        temp_array[0] = enqueued_node;
+        for(int i=1; i < new_array_length; i++) {
+            temp_array[i] = array[i];
+        }
+        array = temp_array;
 
     } // end of enqueue()
 
 
     @Override
-    public String dequeue() {
+    public String dequeue() throws NullPointerException {
         // Implement me
+        if(array==null) {
+    		throw new NullPointerException("The queue is already empty.");
+    	} else {
 
-        return ""; // placeholder,modify this
+            String dequeued_node = array[array.length];
+            int new_array_length = array.length - 1
+            String temp_array[] = new String[new_array_length];
+
+        	for(int i=0; i < new_array_length; i++) {
+        		temp_array[i] = array[i];
+        	}
+        	array = temp_array;
+    	}
+
+        return dequeued_node + "; has left the queue."; // placeholder,modify this
     } // end of dequeue()
 
 
