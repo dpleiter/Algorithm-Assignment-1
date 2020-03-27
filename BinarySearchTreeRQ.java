@@ -46,8 +46,8 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
-        public void setParent(Node parent) {
-            this.parent = parent;
+        public Node getParent() {
+            return this.parent;
         }
 
         public Node getLeft() {
@@ -66,15 +66,31 @@ public class BinarySearchTreeRQ implements Runqueue {
             return this.procLabel;
         }
 
+        public void setParent(Node node) {
+            this.parent = node;
+        }
+
+        public void setLeft(Node node) {
+            this.left = node;
+        }
+
         public void printTree() {
             if (this.left != null) {
                 this.left.printTree();
             }
 
-            System.out.println(this.vt);
+            System.out.println(this.procLabel);
 
             if (this.right != null) {
                 this.right.printTree();
+            }
+        }
+
+        public Node findMinimumVt() {
+            if (this.left == null) {
+                return this;
+            } else {
+                return this.left.findMinimumVt();
             }
         }
     }
@@ -101,9 +117,11 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public String dequeue() {
-        // Implement me
+        Node nodeToDequeue = head.findMinimumVt();
 
-        return ""; // placeholder, modify this
+        nodeToDequeue.getParent().setLeft(null);
+
+        return nodeToDequeue.getProcLabel();
     } // end of dequeue()
 
     @Override
