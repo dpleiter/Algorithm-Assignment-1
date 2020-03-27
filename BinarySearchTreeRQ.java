@@ -10,11 +10,11 @@ import java.lang.String;
  * @author Sajal Halder, Minyi Li, Jeffrey Chan
  */
 public class BinarySearchTreeRQ implements Runqueue {
+    @SuppressWarnings("unused")
     private class Node {
         String procLabel;
         int vt;
 
-        @SuppressWarnings("unused")
         private Node parent;
 
         private Node left;
@@ -50,12 +50,10 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.parent = parent;
         }
 
-        @SuppressWarnings("unused")
         public Node getLeft() {
             return this.left;
         }
 
-        @SuppressWarnings("unused")
         public Node getRight() {
             return this.right;
         }
@@ -64,7 +62,6 @@ public class BinarySearchTreeRQ implements Runqueue {
             return this.vt;
         }
 
-        @SuppressWarnings("unused")
         public String getProcLabel() {
             return this.procLabel;
         }
