@@ -30,7 +30,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
         public void addChild(Node nodeToAdd) {
             if (nodeToAdd.getVt() > this.vt) {
-                if (nodeToAdd.getVt() == this.parent.getVt()) {
+                if (this.parent != null && nodeToAdd.getVt() == this.parent.getVt()) {
                     // Insert duplicate key
                     nodeToAdd.setParent(this.parent);
                     nodeToAdd.setLeft(this);
@@ -100,6 +100,15 @@ public class BinarySearchTreeRQ implements Runqueue {
                 return this.left.findMinimumVt();
             }
         }
+
+        public Boolean findProcLabel(String procLabel) {
+            if (procLabel.compareTo(this.procLabel) == 0) {
+                return true;
+            } else {
+                return (this.left != null && this.left.findProcLabel(procLabel))
+                        || (this.right != null && this.right.findProcLabel(procLabel));
+            }
+        }
     }
 
     Node head;
@@ -139,9 +148,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public boolean findProcess(String procLabel) {
-        // Implement me
-
-        return false; // placeholder, modify this
+        return this.head.findProcLabel(procLabel);
     } // end of findProcess()
 
     @Override
