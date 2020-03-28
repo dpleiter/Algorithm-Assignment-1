@@ -28,20 +28,27 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.right = null;
         }
 
-        public void addChild(Node node) {
-            if (node.getVt() > this.vt) {
-                if (this.right == null) {
-                    this.right = node;
-                    node.setParent(this);
+        public void addChild(Node nodeToAdd) {
+            if (nodeToAdd.getVt() > this.vt) {
+                if (nodeToAdd.getVt() == this.parent.getVt()) {
+                    // Insert duplicate key
+                    nodeToAdd.setParent(this.parent);
+                    nodeToAdd.setLeft(this);
+
+                    this.parent.setLeft(nodeToAdd);
+                    this.parent = nodeToAdd;
+                } else if (this.right == null) {
+                    this.right = nodeToAdd;
+                    nodeToAdd.setParent(this);
                 } else {
-                    this.right.addChild(node);
+                    this.right.addChild(nodeToAdd);
                 }
             } else {
                 if (this.left == null) {
-                    this.left = node;
-                    node.setParent(this);
+                    this.left = nodeToAdd;
+                    nodeToAdd.setParent(this);
                 } else {
-                    this.left.addChild(node);
+                    this.left.addChild(nodeToAdd);
                 }
             }
         }
@@ -79,7 +86,7 @@ public class BinarySearchTreeRQ implements Runqueue {
                 this.left.printTree();
             }
 
-            System.out.println(this.procLabel);
+            System.out.print(this.procLabel + " ");
 
             if (this.right != null) {
                 this.right.printTree();
@@ -119,7 +126,13 @@ public class BinarySearchTreeRQ implements Runqueue {
     public String dequeue() {
         Node nodeToDequeue = head.findMinimumVt();
 
-        nodeToDequeue.getParent().setLeft(null);
+        if (nodeToDequeue == this.head) {
+            // dequeue the head
+            // as no nodes to left, set head as the right node
+            this.head = this.head.getRight();
+        } else {
+            nodeToDequeue.getParent().setLeft(null);
+        }
 
         return nodeToDequeue.getProcLabel();
     } // end of dequeue()
@@ -155,6 +168,8 @@ public class BinarySearchTreeRQ implements Runqueue {
     @Override
     public void printAllProcesses(PrintWriter os) {
         head.printTree();
+
+        System.out.print("\n");
     }
 
 } // end of class BinarySearchTreeRQ
