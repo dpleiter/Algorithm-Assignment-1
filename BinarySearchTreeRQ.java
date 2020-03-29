@@ -77,8 +77,10 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @SuppressWarnings("unused")
     private class Node {
-        String procLabel;
-        int vt;
+        private String procLabel;
+        private int vt;
+
+        private int height;
 
         private Node parent;
 
@@ -138,6 +140,10 @@ public class BinarySearchTreeRQ implements Runqueue {
             return this.procLabel;
         }
 
+        public int getHeight() {
+            return this.height;
+        }
+
         public void setParent(Node node) {
             this.parent = node;
         }
@@ -178,6 +184,28 @@ public class BinarySearchTreeRQ implements Runqueue {
                 return (this.left != null && this.left.findProcLabel(procLabel))
                         || (this.right != null && this.right.findProcLabel(procLabel));
             }
+        }
+
+        public int calcHeight() {
+            int nodeHeight;
+
+            if (this.left != null) {
+                if (this.right != null) {
+                    nodeHeight = Math.max(this.left.calcHeight(), this.right.calcHeight()) + 1;
+                } else {
+                    nodeHeight = this.left.calcHeight() + 1;
+                }
+            } else {
+                if (this.right != null) {
+                    nodeHeight = this.right.calcHeight() + 1;
+                } else {
+                    nodeHeight = 0;
+                }
+            }
+
+            this.height = nodeHeight;
+
+            return nodeHeight;
         }
 
         public void printDetails() {
