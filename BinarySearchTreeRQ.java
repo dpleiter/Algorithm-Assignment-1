@@ -26,6 +26,8 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.head.addChild(procLabel, vt);
             // this.head.addChild(nodeToAdd);
         }
+
+        this.head.calcHeight();
     }
 
     @Override
@@ -42,6 +44,8 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
+        this.head.calcHeight();
+
         return nodeToDequeue.dequeue();
     } // end of dequeue()
 
@@ -52,9 +56,18 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public boolean removeProcess(String procLabel) {
-        // Implement me
+        Boolean removed;
 
-        return false; // placeholder, modify this
+        if (this.head.getHeight() == 0 && this.head.getNumProcLabels() == 1
+                && this.head.getProcLabels()[0] == procLabel) {
+            this.head = null;
+            removed = true;
+        } else {
+            removed = this.head.removeProcess(procLabel);
+            this.head.calcHeight();
+        }
+
+        return removed;
     } // end of removeProcess()
 
     @Override
@@ -181,6 +194,10 @@ public class BinarySearchTreeRQ implements Runqueue {
             return this.numLabels;
         }
 
+        public String[] getProcLabels() {
+            return this.procLabels;
+        }
+
         public void setParent(Node node) {
             this.parent = node;
         }
@@ -214,6 +231,15 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
+        public Node findMaximumVt() {
+            // finds maximum vt in tree and returns that node
+            if (this.right == null) {
+                return this;
+            } else {
+                return this.right.findMaximumVt();
+            }
+        }
+
         public Boolean findProcLabel(String procLabel) {
             for (int i = 0; i < this.numLabels; i++) {
                 if (procLabels[i].compareTo(procLabel) == 0) {
@@ -223,7 +249,79 @@ public class BinarySearchTreeRQ implements Runqueue {
 
             return (this.left != null && this.left.findProcLabel(procLabel))
                     || (this.right != null && this.right.findProcLabel(procLabel));
+        }
 
+        private void removeReferences() {
+            // Recursively replace node with details of children until leaf, then delete
+            // Never called for a node with 2 non-null children
+            if (this.left == null && this.right == null) {
+                if (this.parent.getLeft() == this) {
+                    this.parent.setLeft(null);
+                } else {
+                    this.parent.setRight(null);
+                }
+            } else if (this.left != null) {
+                replaceNodeDetails(this.left);
+                this.left.removeReferences();
+            } else {
+                replaceNodeDetails(this.right);
+                this.right.removeReferences();
+            }
+
+        }
+
+        private void replaceNodeDetails(Node replacementNode) {
+            // replace this nodes details with that of another
+            this.vt = replacementNode.getVt();
+            this.procLabels = replacementNode.getProcLabels();
+            this.numLabels = replacementNode.getNumProcLabels();
+        }
+
+        public Boolean removeProcess(String procLabel) {
+            for (int i = 0; i < this.numLabels; i++) {
+                if (this.procLabels[i].compareTo(procLabel) == 0) {
+                    if (numLabels == 1) {
+                        // node needs to be deleted
+                        int leftHeight = this.left == null ? 0 : this.left.getHeight();
+                        int rightHeight = this.right == null ? 0 : this.right.getHeight();
+
+                        Node replacementNode;
+
+                        if (this.height == 0) {
+                            // leaf node means no replacement. Delete references
+                            if (this.parent.getLeft() == this) {
+                                this.parent.setLeft(null);
+                            } else {
+                                this.parent.setRight(null);
+                            }
+
+                            this.parent = null;
+
+                            return true;
+                        } else if (leftHeight > rightHeight) {
+                            replacementNode = this.left.findMaximumVt();
+                        } else {
+                            replacementNode = this.right.findMinimumVt();
+                        }
+
+                        // Set this node's details to that of the replacement node
+                        replaceNodeDetails(replacementNode);
+
+                        // delete all references to replacement node
+                        replacementNode.removeReferences();
+                    } else {
+                        for (int j = i; j < this.numLabels - 1; j++) {
+                            procLabels[j] = procLabels[j + 1];
+                        }
+                        numLabels--;
+                    }
+
+                    return true;
+                }
+            }
+
+            return (this.left != null && this.left.removeProcess(procLabel))
+                    || (this.right != null && this.right.removeProcess(procLabel));
         }
 
         public int calcHeight() {
@@ -248,14 +346,18 @@ public class BinarySearchTreeRQ implements Runqueue {
             return nodeHeight;
         }
 
-        public void printDetails() {
+        private void printDetails() {
             // For testing
             System.out.print("\nDetails of nodes: ");
             for (int i = 0; i < this.numLabels; i++) {
                 System.out.print(procLabels[i] + " ");
             }
 
-            System.out.println("\nVT: " + Integer.toString(this.vt));
+            System.out.println("\nNumber of items: " + Integer.toString(numLabels));
+
+            System.out.println("VT: " + Integer.toString(this.vt));
+
+            System.out.println("Height: " + Integer.toString(height));
 
             if (this.parent == null) {
                 System.out.println("HEAD NODE");
