@@ -24,7 +24,6 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.head = new Node(procLabel, vt);
         } else {
             this.head.addChild(procLabel, vt);
-            // this.head.addChild(nodeToAdd);
         }
 
         this.head.calcHeight();
@@ -72,7 +71,13 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public int precedingProcessTime(String procLabel) {
-        // Implement me
+        Node test = this.head.getNode(procLabel);
+
+        if (test != null) {
+            test.printDetails();
+        } else {
+            System.out.println("FAILED TO LOCATE");
+        }
 
         return -1; // placeholder, modify this
     } // end of precedingProcessTime()
@@ -324,6 +329,18 @@ public class BinarySearchTreeRQ implements Runqueue {
                     || (this.right != null && this.right.removeProcess(procLabel));
         }
 
+        public int calcPreceeding() {
+            if (this.left == null) {
+                return this.vt;
+            } else if (this.parent.getVt() > this.vt) {
+
+            } else {
+
+            }
+
+            return 1;
+        }
+
         public int calcHeight() {
             int nodeHeight;
 
@@ -344,6 +361,31 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.height = nodeHeight;
 
             return nodeHeight;
+        }
+
+        public Node getNode(String procLabel) {
+            Node findInLeftChild;
+            Node findInRightChild;
+
+            for (int i = 0; i < this.numLabels; i++) {
+                if (this.procLabels[i].compareTo(procLabel) == 0) {
+                    return this;
+                }
+            }
+
+            if (this.left == null) {
+                findInLeftChild = null;
+            } else {
+                findInLeftChild = this.left.getNode(procLabel);
+            }
+
+            if (this.right == null) {
+                findInRightChild = null;
+            } else {
+                findInRightChild = this.right.getNode(procLabel);
+            }
+
+            return findInLeftChild == null ? findInRightChild : findInLeftChild;
         }
 
         private void printDetails() {
