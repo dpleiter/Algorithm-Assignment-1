@@ -36,7 +36,7 @@ public class OrderedLinkedListRQ implements Runqueue {
 
     @Override
     public void enqueue(String procLabel, int vt) {
-        // Implement me
+    	
         Proc newProc = new Proc(procLabel, vt);
 
         // If head is empty, then list is empty and head reference need to be initialised.
@@ -46,7 +46,7 @@ public class OrderedLinkedListRQ implements Runqueue {
         } 
         // otherwise distinguish where Proc needs to be placed, and insert it there.
         else {
-        	int insertIndex = getInsertIndex(vt);
+        	int insertIndex = getIndex(vt);
 
             // if index = 0, we should replace mHead with newNode
             if (insertIndex == 0) {
@@ -79,8 +79,8 @@ public class OrderedLinkedListRQ implements Runqueue {
 
     @Override
     public String dequeue() {
-        // Implement me
     	
+    	String dequeuedProcess = mHead.getProcLabel();
     	if(mLength == 1) {
     		mHead = null;
     		mTail = null;
@@ -92,7 +92,7 @@ public class OrderedLinkedListRQ implements Runqueue {
     	
     	mLength--;
     	
-        return ""; // placeholder, modify this
+        return dequeuedProcess;
     } // end of dequeue()
 
 
@@ -109,47 +109,105 @@ public class OrderedLinkedListRQ implements Runqueue {
 	    	} else
 	    		currProc = currProc.mNext;
     	}
-        return result; // placeholder, modify this
+        return result;
     } // end of findProcess()
 
 
     @Override
     public boolean removeProcess(String procLabel) {
-        // Implement me
-
-        return false; // placeholder, modify this
+        boolean processRemoved = false;
+        
+        Integer removeIndex = getIndex(procLabel);
+        if(removeIndex != null) {
+        	
+        	Proc currProc = mHead;
+            for (int i = 0; i < removeIndex; i++) {
+            	currProc = currProc.getNext();
+            }
+            
+            if(removeIndex == 0 && mLength == 1) {
+            	mHead = null;
+            	mTail = null;
+            } else if(removeIndex == 0 && mLength == 2) {
+            	mHead = currProc.mNext;
+            	mTail = currProc.mNext;
+            	currProc.mNext.setPrev(null);
+            } else if(removeIndex == 1 && mLength == 2) {
+            	mHead = currProc.mPrev;
+            	mTail = currProc.mPrev;
+            	currProc.mPrev.setNext(null);
+            } else if(removeIndex == 0 && mLength > 2) {
+            	mHead = currProc.mNext;
+            	currProc.mNext.setPrev(null);
+            } else if(removeIndex == mLength-1 && mLength > 2) {
+            	mTail = currProc.mPrev;
+            	currProc.mPrev.setNext(null);
+            } else {
+            	currProc.mPrev.setNext(currProc.mNext);
+            	currProc.mNext.setPrev(currProc.mPrev);
+            }
+            
+        	processRemoved = true;
+        	mLength--;
+        	
+        } 
+        
+        return processRemoved;
     } // End of removeProcess()
 
-
+    
     @Override
     public int precedingProcessTime(String procLabel) {
-        // Implement me
+        
+    	int time = -1;
+        Integer index = getIndex(procLabel);
+        if(index != null) {
+        	time = 0;
+        	Proc currProc = mHead;
+            for (int i = 0; i < index; i++) {
+            	time = time + currProc.getRunTime();
+            	currProc = currProc.getNext();
+            }
 
-        return -1; // placeholder, modify this
+        }
+
+        return time;
     } // end of precedingProcessTime()
 
 
     @Override
     public int succeedingProcessTime(String procLabel) {
-        // Implement me
+    	
+    	int time = -1;
+        Integer index = getIndex(procLabel);
+        if(index != null) {
+        	time = 0;
+        	Proc currProc = mTail;
+            for (int i = mLength-1; i > index; i--) {
+            	time = time + currProc.getRunTime();
+            	currProc = currProc.getPrev();
+            }
+        }
 
-        return -1; // placeholder, modify this
+        return time;
     } // end of precedingProcessTime()
 
 
     @Override
     public void printAllProcesses(PrintWriter os) {
-        //Implement me
+        
+    	String processes = "";
     	Proc currProc = mHead;
     	for(int i = 0; i < mLength; i++) {
-    		System.out.print(currProc.getProcLabel() + " ");
+    		processes = processes.concat(currProc.getProcLabel() + " ");
     		currProc = currProc.getNext();
     	}
-
+    	System.out.println(processes.trim());
+    	
     } // end of printAllProcess()
     
     
-    public int getInsertIndex(int vt) {
+    public Integer getIndex(int vt) {
     	
     	int index = 0;
     	int i = mLength;
@@ -174,64 +232,29 @@ public class OrderedLinkedListRQ implements Runqueue {
     }
     
     
-    
-    /**
-     * Proc type, inner private class.
-     */
-	private class Proc {
-
-        /** Process Label. */
-        protected String mProcLabel;
-        
-        /** Process RunTime. */
-        protected int mVt;
-        
-        /** Reference to next node. */
-        protected Proc mNext;
-        
-        /** Reference to previous node. */
-        protected Proc mPrev;
-
-        public Proc(String procLabel, int vt) {
-        	mProcLabel = procLabel;
-        	mVt = vt;
-            mNext = null;
-            mPrev = null;
-        }
-
-        public String getProcLabel() {
-            return mProcLabel;
-        }
-        
-        public int getRunTime() {
-            return mVt;
-        }
-
-
-        public Proc getNext() {
-            return mNext;
-        }
-        
-        public Proc getPrev() {
-            return mPrev;
-        }
-
-        public void setProcess(String procLabel) {
-        	mProcLabel = procLabel;
-        }
-
-        public void setRunTime(int vt) {
-        	mVt = vt;
-        }
-
-
-        public void setNext(Proc next) {
-            mNext = next;
-        }
-        
-        public void setPrev(Proc prev) {
-            mPrev = prev;
-        }
-    } 
+    public Integer getIndex(String procLabel) {
+    	
+    	Integer index = null;
+    	int i = mLength;
+    	
+    	Proc currProc = mTail;
+    	if(mLength > 1) {
+    		while(currProc != null) { 
+    			i--;
+		    	if(procLabel.equalsIgnoreCase(currProc.getProcLabel())) {
+		    		index = i;
+		    		break;
+		    	} else {
+		    		currProc = currProc.getPrev();
+		    	}			
+	    	} 	
+    	} else {
+    		if(procLabel.equalsIgnoreCase(mHead.getProcLabel()))
+    			index = 0;
+    	}
+    	
+    	return index;
+    	
+    }
 
 } // end of class OrderedLinkedListRQ

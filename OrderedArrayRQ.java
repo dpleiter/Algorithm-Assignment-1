@@ -12,7 +12,7 @@ import java.lang.String;
  */
 public class OrderedArrayRQ implements Runqueue {
 
-    protected String array[];
+    protected Proc array[];
 
     /**
      * Constructs empty queue
@@ -26,34 +26,32 @@ public class OrderedArrayRQ implements Runqueue {
     @Override
     public void enqueue(String procLabel, int vt) {
     	
-        // Implement me
-    	int new_array_length;
+    	Proc enqueuedProc = new Proc(procLabel, vt);
+     	int newArrayLength;
     	if (array == null)
-    		new_array_length = 1;
+    		newArrayLength = 1;
     	else 
-    		new_array_length = array.length + 1;
-    	
-        String temp_array[] = new String[new_array_length];
-        String enqueued_node = procLabel + "," + Integer.toString(vt);
+    		newArrayLength = array.length + 1;
+        Proc tempArray[] = new Proc[newArrayLength];
         
-        if(new_array_length == 1) {
-        	temp_array[0] = enqueued_node;
+        if(newArrayLength == 1) {
+        	tempArray[0] = enqueuedProc;
         } else {
         	
-        	Integer position = this.getPosition(vt);
+        	Integer position = getPosition(vt);
         	
         	for(int i = 0; i < position; i++) {
-        		temp_array[i] = array[i];
+        		tempArray[i] = array[i];
         	}
         	
-        	temp_array[position] = enqueued_node;
+        	tempArray[position] = enqueuedProc;
         	
-        	for(int i = position+1; i < new_array_length; i++) {
-        		temp_array[i] = array[i-1];
+        	for(int i = position+1; i < newArrayLength; i++) {
+        		tempArray[i] = array[i-1];
         	}
         }
 
-        array = temp_array;
+        array = tempArray;
     } // end of enqueue()
 
 
@@ -63,20 +61,20 @@ public class OrderedArrayRQ implements Runqueue {
         if(array==null)
     		throw new NullPointerException("Nothing to dequeue.");
   
-        String dequeued_node = array[0];
-        int new_array_length = array.length - 1;
-        String temp_array[] = new String[new_array_length];
+        Proc dequeuedProc = array[0];
+        int newArrayLength = array.length - 1;
+        Proc tempArray[] = new Proc[newArrayLength];
 
     	for(int i=1; i < array.length; i++) {
-    		temp_array[i-1] = array[i];
+    		tempArray[i-1] = array[i];
     	}
     	
-    	if(new_array_length == 0)
+    	if(newArrayLength == 0)
     		array = null;
     	else
-    		array = temp_array;
+    		array = tempArray;
 
-        return dequeued_node.split(",")[0].trim() + " has left the queue.";
+        return dequeuedProc.getProcLabel() + " has left the queue.";
     } // end of dequeue()
 
 
@@ -84,7 +82,7 @@ public class OrderedArrayRQ implements Runqueue {
     public boolean findProcess(String procLabel){
         // Implement me
     	boolean found;
-    	Integer position = this.getPosition(procLabel);
+    	Integer position = getPosition(procLabel);
     	
     	if(position == null)
     		found = false;
@@ -97,83 +95,83 @@ public class OrderedArrayRQ implements Runqueue {
 
     @Override
     public boolean removeProcess(String procLabel) throws NullPointerException {
-        // Implement me
+
     	if(array == null)
     		throw new NullPointerException("Queue is empty");
     	
-    	boolean removed = false;
-        Integer position = this.getPosition(procLabel);
-        int new_array_length = array.length - 1;
-		String temp_array[] = new String[new_array_length];    	
+    	boolean removedProc = false;
+        Integer position = getPosition(procLabel);
+        int newArrayLength = array.length - 1;
+		Proc tempArray[] = new Proc[newArrayLength];    	
 		
     	if(position == null) {
-    		removed = false;
+    		removedProc = false;
     	} else {    		
     		for(int i = 0; i < position; i++) {
-    			temp_array[i] = array[i];
+    			tempArray[i] = array[i];
     		}
     		for(int j = position+1; j < array.length; j++) {
-    			temp_array[j-1] = array[j];
+    			tempArray[j-1] = array[j];
     		}
     		
-    		if(new_array_length == 0)
+    		if(newArrayLength == 0)
     			array = null;
     		else
-    			array = temp_array;
+    			array = tempArray;
     		
-    		removed = true;
+    		removedProc = true;
     	}
     	
-    	return removed;
+    	return removedProc;
     } // end of removeProcess()
 
 
     @Override
     public int precedingProcessTime(String procLabel) {
-        // Implement me
-
-    	int preceeding_run_time = 0;
+ 
+    	int preceedingRunTime = 0;
         Integer position = this.getPosition(procLabel);
     	
     	if(position != null) {    		
 	    	for(int i=0; i < position; i++) {
-	    		preceeding_run_time = preceeding_run_time + Integer.parseInt(array[i].split(",")[1].trim());
+	    		Proc currProc = array[i];
+	    		preceedingRunTime = preceedingRunTime + currProc.getRunTime();
 	    	}
     	} else
-    		preceeding_run_time = -1;
+    		preceedingRunTime = -1;
     		
-    	return preceeding_run_time;
+    	return preceedingRunTime;
     }// end of precedingProcessTime()
 
 
     @Override
     public int succeedingProcessTime(String procLabel) {
-        // Implement me
-    	
-    	int proceeding_run_time = 0;
+     	
+    	int proceedingRunTime = 0;
         Integer position = this.getPosition(procLabel);
     	
     	if(position != null) {    		
 	    	for(int i=position+1; i < array.length; i++) {
-	    		proceeding_run_time = proceeding_run_time + Integer.parseInt(array[i].split(",")[1].trim());
+	    		Proc currProc = array[i];
+	    		proceedingRunTime = proceedingRunTime + currProc.getRunTime();
 	    	}
     	} else
-    		proceeding_run_time = -1;
+    		proceedingRunTime = -1;
     		
-    	return proceeding_run_time;
+    	return proceedingRunTime;
     } // end of precedingProcessTime()
 
 
     @Override
     public void printAllProcesses(PrintWriter os) {
-        //Implement me
-    	String queue = "";
+ 
+    	String processes = "";
     	
     	for(int i=0; i < array.length; i++) {
-    		queue = queue.concat(array[i].split(",")[0].trim().concat(" "));
+    		Proc currProc = array[i];
+    		processes = processes.concat(currProc.getProcLabel() + " ");
     	}
-    	queue = queue.trim();
-    	System.out.println(queue);
+    	System.out.println(processes.trim());
 
     } // end of printAllProcesses()
     
@@ -183,7 +181,8 @@ public class OrderedArrayRQ implements Runqueue {
     	Integer position = null;
         
     	for(int i=0; i < array.length; i++) {
-    		if(procLabel.equalsIgnoreCase(array[i].split(",")[0].trim())) {
+    		Proc currProc = array[i];
+    		if(procLabel.equalsIgnoreCase(currProc.getProcLabel())) {
     			position = i;
     			break;
     		}
@@ -197,7 +196,8 @@ public class OrderedArrayRQ implements Runqueue {
     	Integer position = 0;
         
     	for(int i = array.length-1; i >= 0; i--) {
-        	if(vt >= Integer.parseInt(array[i].split(",")[1].trim())) {
+    		Proc currProc = array[i];
+        	if(vt >= currProc.getRunTime()) {
         		position = i+1;
         		break;
         	}
