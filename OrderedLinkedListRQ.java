@@ -202,7 +202,7 @@ public class OrderedLinkedListRQ implements Runqueue {
     		processes = processes.concat(currProc.getProcLabel() + " ");
     		currProc = currProc.getNext();
     	}
-    	System.out.println(processes.trim());
+    	os.print(processes.trim());
     	
     } // end of printAllProcess()
     
