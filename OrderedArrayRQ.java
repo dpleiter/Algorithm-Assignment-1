@@ -171,7 +171,7 @@ public class OrderedArrayRQ implements Runqueue {
     		Proc currProc = array[i];
     		processes = processes.concat(currProc.getProcLabel() + " ");
     	}
-    	os.print(processes.trim());
+    	os.println(processes.trim());
 
     } // end of printAllProcesses()
     
