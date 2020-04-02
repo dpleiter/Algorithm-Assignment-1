@@ -104,18 +104,16 @@ public class BinarySearchTreeRQ implements Runqueue {
         os.print("\n");
     }
 
-    @SuppressWarnings("unused")
     private class Node {
         private int vt;
-
-        private int height;
-
         private String[] procLabels;
         private int numLabels;
 
         private Node parent;
         private Node left;
         private Node right;
+
+        private int height;
 
         public Node(String procLabel, int vt) {
             this.vt = vt;
@@ -157,28 +155,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
-        public Node getParent() {
-            return this.parent;
-        }
-
-        public Node getLeft() {
-            return this.left;
-        }
-
-        public Node getRight() {
-            return this.right;
-        }
-
-        public int getVt() {
-            return this.vt;
-        }
-
-        public int getHeight() {
-            return this.height;
-        }
-
         public String dequeue() {
-            // handle dequeueing operation
             if (this.numLabels == 1) {
                 if (this.parent != null) {
                     // If not head node
@@ -203,37 +180,64 @@ public class BinarySearchTreeRQ implements Runqueue {
 
         }
 
-        public int getNumProcLabels() {
-            return this.numLabels;
-        }
-
-        public String[] getProcLabels() {
-            return this.procLabels;
-        }
-
-        public void setParent(Node node) {
-            this.parent = node;
-        }
-
-        public void setLeft(Node node) {
-            this.left = node;
-        }
-
-        public void setRight(Node node) {
-            this.right = node;
-        }
-
-        public void printTree(PrintWriter os) {
-            if (this.left != null) {
-                this.left.printTree(os);
-            }
-
+        public Boolean findProcLabel(String procLabel) {
             for (int i = 0; i < this.numLabels; i++) {
-                os.print(this.procLabels[i] + " ");
+                if (procLabels[i].compareTo(procLabel) == 0) {
+                    return true;
+                }
             }
 
-            if (this.right != null) {
-                this.right.printTree(os);
+            return (this.left != null && this.left.findProcLabel(procLabel))
+                    || (this.right != null && this.right.findProcLabel(procLabel));
+        }
+
+        public Node removeProcess(String procLabel) {
+            if (this.numLabels == 1) {
+                // delete node
+                int leftHeight = this.left == null ? 0 : this.left.getHeight();
+                int rightHeight = this.right == null ? 0 : this.right.getHeight();
+
+                Node replacementNode;
+
+                if (this.height == 0) {
+                    // leaf node
+                    return null;
+                } else if (leftHeight > rightHeight) {
+                    replacementNode = this.left.findMaximumVt();
+
+                    if (this.left != replacementNode) {
+                        replacementNode.getParent().setRight(replacementNode.getLeft());
+                        replacementNode.setLeft(this.left);
+                    }
+
+                    replacementNode.setRight(this.right);
+                } else {
+                    replacementNode = this.right.findMinimumVt();
+
+                    if (this.right != replacementNode) {
+                        replacementNode.getParent().setLeft(replacementNode.getRight());
+                        replacementNode.setRight(this.right);
+                    }
+
+                    replacementNode.setLeft(this.left);
+                }
+
+                replacementNode.setParent(this.parent);
+
+                return replacementNode;
+            } else {
+                for (int i = 0; i < this.numLabels; i++) {
+                    if (this.procLabels[i].compareTo(procLabel) == 0) {
+                        for (int j = i; j < this.numLabels - 1; j++) {
+                            procLabels[j] = procLabels[j + 1];
+                        }
+                        numLabels--;
+
+                        break;
+                    }
+                }
+
+                return this;
             }
         }
 
@@ -299,126 +303,21 @@ public class BinarySearchTreeRQ implements Runqueue {
             return thisTime + rightChildTime + parentTime;
         }
 
-        public int findTimeOfTree() {
-            int timeOfLeftChild;
-            int timeOfRightChild;
-
-            if (this.left == null) {
-                timeOfLeftChild = 0;
-            } else {
-                timeOfLeftChild = this.left.findTimeOfTree();
-            }
-
-            if (this.right == null) {
-                timeOfRightChild = 0;
-            } else {
-                timeOfRightChild = this.right.findTimeOfTree();
-            }
-
-            return timeOfLeftChild + timeOfRightChild + this.numLabels * this.vt;
-        }
-
-        public Node findMinimumVt() {
-            // finds minimum vt in tree and returns that node
-            if (this.left == null) {
-                return this;
-            } else {
-                return this.left.findMinimumVt();
-            }
-        }
-
-        public Node findMaximumVt() {
-            // finds maximum vt in tree and returns that node
-            if (this.right == null) {
-                return this;
-            } else {
-                return this.right.findMaximumVt();
-            }
-        }
-
-        public Boolean findProcLabel(String procLabel) {
-            for (int i = 0; i < this.numLabels; i++) {
-                if (procLabels[i].compareTo(procLabel) == 0) {
-                    return true;
-                }
-            }
-
-            return (this.left != null && this.left.findProcLabel(procLabel))
-                    || (this.right != null && this.right.findProcLabel(procLabel));
-        }
-
-        public Node removeProcess(String procLabel) {
-            if (this.numLabels == 1) {
-                // delete node
-                int leftHeight = this.left == null ? 0 : this.left.getHeight();
-                int rightHeight = this.right == null ? 0 : this.right.getHeight();
-
-                Node replacementNode;
-
-                if (this.height == 0) {
-                    // leaf node
-                    return null;
-                } else if (leftHeight > rightHeight) {
-                    replacementNode = this.left.findMaximumVt();
-
-                    if (this.left != replacementNode) {
-                        replacementNode.getParent().setRight(replacementNode.getLeft());
-                        replacementNode.setLeft(this.left);
-                    }
-
-                    replacementNode.setRight(this.right);
-                } else {
-                    replacementNode = this.right.findMinimumVt();
-
-                    if (this.right != replacementNode) {
-                        replacementNode.getParent().setLeft(replacementNode.getRight());
-                        replacementNode.setRight(this.right);
-                    }
-
-                    replacementNode.setLeft(this.left);
-                }
-
-                replacementNode.setParent(this.parent);
-
-                return replacementNode;
-            } else {
-                for (int i = 0; i < this.numLabels; i++) {
-                    if (this.procLabels[i].compareTo(procLabel) == 0) {
-                        for (int j = i; j < this.numLabels - 1; j++) {
-                            procLabels[j] = procLabels[j + 1];
-                        }
-                        numLabels--;
-
-                        break;
-                    }
-                }
-
-                return this;
-            }
-        }
-
-        public int calcHeight() {
-            int nodeHeight;
-
+        public void printTree(PrintWriter os) {
             if (this.left != null) {
-                if (this.right != null) {
-                    nodeHeight = Math.max(this.left.calcHeight(), this.right.calcHeight()) + 1;
-                } else {
-                    nodeHeight = this.left.calcHeight() + 1;
-                }
-            } else {
-                if (this.right != null) {
-                    nodeHeight = this.right.calcHeight() + 1;
-                } else {
-                    nodeHeight = 0;
-                }
+                this.left.printTree(os);
             }
 
-            this.height = nodeHeight;
+            for (int i = 0; i < this.numLabels; i++) {
+                os.print(this.procLabels[i] + " ");
+            }
 
-            return nodeHeight;
+            if (this.right != null) {
+                this.right.printTree(os);
+            }
         }
 
+        // ***** Helper functions *****
         public Node getNode(String procLabel) {
             Node findInLeftChild;
             Node findInRightChild;
@@ -444,32 +343,100 @@ public class BinarySearchTreeRQ implements Runqueue {
             return findInLeftChild == null ? findInRightChild : findInLeftChild;
         }
 
-        public void printDetails() {
-            // For testing
-            System.out.print("\nDetails of nodes: ");
-            for (int i = 0; i < this.numLabels; i++) {
-                System.out.print(procLabels[i] + " ");
-            }
-
-            System.out.println("\nNumber of items: " + Integer.toString(numLabels));
-
-            System.out.println("VT: " + Integer.toString(this.vt));
-
-            System.out.println("Height: " + Integer.toString(height));
-
-            if (this.parent == null) {
-                System.out.println("HEAD NODE");
+        private Node findMinimumVt() {
+            // finds minimum vt in tree and returns that node
+            if (this.left == null) {
+                return this;
             } else {
-                System.out.println("Parent: " + parent.getVt());
+                return this.left.findMinimumVt();
+            }
+        }
+
+        private Node findMaximumVt() {
+            // finds maximum vt in tree and returns that node
+            if (this.right == null) {
+                return this;
+            } else {
+                return this.right.findMaximumVt();
+            }
+        }
+
+        private int findTimeOfTree() {
+            int timeOfLeftChild;
+            int timeOfRightChild;
+
+            if (this.left == null) {
+                timeOfLeftChild = 0;
+            } else {
+                timeOfLeftChild = this.left.findTimeOfTree();
             }
 
-            if (left != null) {
-                System.out.println("Left Child: " + left.getVt());
+            if (this.right == null) {
+                timeOfRightChild = 0;
+            } else {
+                timeOfRightChild = this.right.findTimeOfTree();
             }
 
-            if (right != null) {
-                System.out.println("Right Child: " + right.getVt());
+            return timeOfLeftChild + timeOfRightChild + this.numLabels * this.vt;
+        }
+
+        public int calcHeight() {
+            int nodeHeight;
+
+            if (this.left != null) {
+                if (this.right != null) {
+                    nodeHeight = Math.max(this.left.calcHeight(), this.right.calcHeight()) + 1;
+                } else {
+                    nodeHeight = this.left.calcHeight() + 1;
+                }
+            } else {
+                if (this.right != null) {
+                    nodeHeight = this.right.calcHeight() + 1;
+                } else {
+                    nodeHeight = 0;
+                }
             }
+
+            this.height = nodeHeight;
+
+            return nodeHeight;
+        }
+
+        // ***** Getters and Setters *****
+        public Node getParent() {
+            return this.parent;
+        }
+
+        public Node getLeft() {
+            return this.left;
+        }
+
+        public Node getRight() {
+            return this.right;
+        }
+
+        public int getVt() {
+            return this.vt;
+        }
+
+        public int getNumProcLabels() {
+            return this.numLabels;
+        }
+
+        public int getHeight() {
+            return this.height;
+        }
+
+        public void setParent(Node node) {
+            this.parent = node;
+        }
+
+        public void setLeft(Node node) {
+            this.left = node;
+        }
+
+        public void setRight(Node node) {
+            this.right = node;
         }
     } // end of class Node
 
