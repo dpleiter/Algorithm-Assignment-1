@@ -55,18 +55,25 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public boolean removeProcess(String procLabel) {
-        Boolean removed;
+        Node node = this.head.getNode(procLabel);
 
-        if (this.head.getHeight() == 0 && this.head.getNumProcLabels() == 1
-                && this.head.getProcLabels()[0] == procLabel) {
-            this.head = null;
-            removed = true;
-        } else {
-            removed = this.head.removeProcess(procLabel);
-            this.head.calcHeight();
+        if (node == null) {
+            return false;
         }
 
-        return removed;
+        Node newNode = node.removeProcess(procLabel);
+
+        if (node == this.head) {
+            this.head = newNode;
+        } else if (node.getParent().getLeft() == node) {
+            node.getParent().setLeft(newNode);
+        } else {
+            node.getParent().setRight(newNode);
+        }
+
+        this.head.calcHeight();
+
+        return true;
     } // end of removeProcess()
 
     @Override
@@ -94,6 +101,7 @@ public class BinarySearchTreeRQ implements Runqueue {
     @Override
     public void printAllProcesses(PrintWriter os) {
         this.head.printTree(os);
+        // System.out.println("\n");
         os.print("\n");
     }
 
@@ -223,6 +231,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
             for (int i = 0; i < this.numLabels; i++) {
                 os.print(this.procLabels[i] + " ");
+                // System.out.print(this.procLabels[i] + " ");
             }
 
             if (this.right != null) {
@@ -340,77 +349,54 @@ public class BinarySearchTreeRQ implements Runqueue {
                     || (this.right != null && this.right.findProcLabel(procLabel));
         }
 
-        private void removeReferences() {
-            // Recursively replace node with details of children until leaf, then delete
-            // Never called for a node with 2 non-null children
-            if (this.left == null && this.right == null) {
-                if (this.parent.getLeft() == this) {
-                    this.parent.setLeft(null);
+        public Node removeProcess(String procLabel) {
+            if (this.numLabels == 1) {
+                // delete node
+                int leftHeight = this.left == null ? 0 : this.left.getHeight();
+                int rightHeight = this.right == null ? 0 : this.right.getHeight();
+
+                Node replacementNode;
+
+                if (this.height == 0) {
+                    // leaf node
+                    return null;
+                } else if (leftHeight > rightHeight) {
+                    replacementNode = this.left.findMaximumVt();
+
+                    if (this.left != replacementNode) {
+                        replacementNode.getParent().setRight(replacementNode.getLeft());
+                        replacementNode.setLeft(this.left);
+                    }
+
+                    replacementNode.setRight(this.right);
                 } else {
-                    this.parent.setRight(null);
+                    replacementNode = this.right.findMinimumVt();
+
+                    if (this.right != replacementNode) {
+                        replacementNode.getParent().setLeft(replacementNode.getRight());
+                        replacementNode.setRight(this.right);
+                    }
+
+                    replacementNode.setLeft(this.left);
                 }
-            } else if (this.left != null) {
-                replaceNodeDetails(this.left);
-                this.left.removeReferences();
+
+                replacementNode.setParent(this.parent);
+
+                return replacementNode;
             } else {
-                replaceNodeDetails(this.right);
-                this.right.removeReferences();
-            }
-
-        }
-
-        private void replaceNodeDetails(Node replacementNode) {
-            // replace this nodes details with that of another
-            this.vt = replacementNode.getVt();
-            this.procLabels = replacementNode.getProcLabels();
-            this.numLabels = replacementNode.getNumProcLabels();
-        }
-
-        public Boolean removeProcess(String procLabel) {
-            for (int i = 0; i < this.numLabels; i++) {
-                if (this.procLabels[i].compareTo(procLabel) == 0) {
-                    if (numLabels == 1) {
-                        // node needs to be deleted
-                        int leftHeight = this.left == null ? 0 : this.left.getHeight();
-                        int rightHeight = this.right == null ? 0 : this.right.getHeight();
-
-                        Node replacementNode;
-
-                        if (this.height == 0) {
-                            // leaf node means no replacement. Delete references
-                            if (this.parent.getLeft() == this) {
-                                this.parent.setLeft(null);
-                            } else {
-                                this.parent.setRight(null);
-                            }
-
-                            this.parent = null;
-
-                            return true;
-                        } else if (leftHeight > rightHeight) {
-                            replacementNode = this.left.findMaximumVt();
-                        } else {
-                            replacementNode = this.right.findMinimumVt();
-                        }
-
-                        // Set this node's details to that of the replacement node
-                        replaceNodeDetails(replacementNode);
-
-                        // delete all references to replacement node
-                        replacementNode.removeReferences();
-                    } else {
+                for (int i = 0; i < this.numLabels; i++) {
+                    if (this.procLabels[i].compareTo(procLabel) == 0) {
                         for (int j = i; j < this.numLabels - 1; j++) {
                             procLabels[j] = procLabels[j + 1];
                         }
                         numLabels--;
+
+                        break;
                     }
-
-                    return true;
                 }
-            }
 
-            return (this.left != null && this.left.removeProcess(procLabel))
-                    || (this.right != null && this.right.removeProcess(procLabel));
+                return this;
+            }
         }
 
         public int calcHeight() {
@@ -460,7 +446,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             return findInLeftChild == null ? findInRightChild : findInLeftChild;
         }
 
-        private void printDetails() {
+        public void printDetails() {
             // For testing
             System.out.print("\nDetails of nodes: ");
             for (int i = 0; i < this.numLabels; i++) {
