@@ -71,29 +71,30 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public int precedingProcessTime(String procLabel) {
-        Node test = this.head.getNode(procLabel);
+        Node node = this.head.getNode(procLabel);
 
-        if (test != null) {
-            test.printDetails();
-        } else {
-            System.out.println("FAILED TO LOCATE");
+        if (node == null) {
+            return -1;
         }
 
-        return -1; // placeholder, modify this
+        return node.calcTimeOfSucceeding(procLabel);
     } // end of precedingProcessTime()
 
     @Override
     public int succeedingProcessTime(String procLabel) {
-        // Implement me
+        Node node = this.head.getNode(procLabel);
 
-        return -1; // placeholder, modify this
+        if (node == null) {
+            return -1;
+        }
+
+        return node.calcTimeOfPreceeding(procLabel);
     } // end of precedingProcessTime()
 
     @Override
     public void printAllProcesses(PrintWriter os) {
-        this.head.printTree();
-
-        System.out.print("\n");
+        this.head.printTree(os);
+        os.print("\n");
     }
 
     @SuppressWarnings("unused")
@@ -215,16 +216,99 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.right = node;
         }
 
-        public void printTree() {
+        public void printTree(PrintWriter os) {
             if (this.left != null) {
-                this.left.printTree();
+                this.left.printTree(os);
             }
 
-            printDetails();
+            for (int i = 0; i < this.numLabels; i++) {
+                os.print(this.procLabels[i] + " ");
+            }
 
             if (this.right != null) {
-                this.right.printTree();
+                this.right.printTree(os);
             }
+        }
+
+        public int calcTimeOfPreceeding(String procLabel) {
+            int leftChildTime;
+            int parentTime;
+            int thisTime = 0;
+
+            if (procLabel == null) {
+                thisTime = this.vt * this.numLabels;
+            } else {
+                for (int i = 0; i < this.numLabels; i++) {
+                    if (this.procLabels[i].compareTo(procLabel) == 0) {
+                        thisTime = this.vt * i;
+                        break;
+                    }
+                }
+            }
+
+            if (this.left == null) {
+                leftChildTime = 0;
+            } else {
+                leftChildTime = this.left.findTimeOfTree();
+            }
+
+            if (this.parent == null || this.parent.getVt() > this.vt) {
+                parentTime = 0;
+            } else {
+                parentTime = this.parent.calcTimeOfPreceeding(null);
+            }
+
+            return thisTime + leftChildTime + parentTime;
+        }
+
+        public int calcTimeOfSucceeding(String procLabel) {
+            int rightChildTime;
+            int parentTime;
+            int thisTime = 0;
+
+            if (procLabel == null) {
+                thisTime = this.vt * this.numLabels;
+            } else {
+                for (int i = 0; i < this.numLabels; i++) {
+                    if (this.procLabels[i].compareTo(procLabel) == 0) {
+                        thisTime = this.vt * (this.numLabels - i - 1);
+                        break;
+                    }
+                }
+            }
+
+            if (this.left == null) {
+                rightChildTime = 0;
+            } else {
+                rightChildTime = this.right.findTimeOfTree();
+            }
+
+            if (this.parent == null || this.parent.getVt() < this.vt) {
+                parentTime = 0;
+            } else {
+                parentTime = this.parent.calcTimeOfPreceeding(null);
+            }
+
+            return thisTime + rightChildTime + parentTime;
+        }
+
+        public int findTimeOfTree() {
+            int timeOfLeftChild;
+            int timeOfRightChild;
+
+            if (this.left == null) {
+                timeOfLeftChild = 0;
+            } else {
+                timeOfLeftChild = this.left.findTimeOfTree();
+            }
+
+            if (this.right == null) {
+                timeOfRightChild = 0;
+            } else {
+                timeOfRightChild = this.right.findTimeOfTree();
+            }
+
+            return timeOfLeftChild + timeOfRightChild + this.numLabels * this.vt;
         }
 
         public Node findMinimumVt() {
@@ -327,18 +411,6 @@ public class BinarySearchTreeRQ implements Runqueue {
 
             return (this.left != null && this.left.removeProcess(procLabel))
                     || (this.right != null && this.right.removeProcess(procLabel));
-        }
-
-        public int calcPreceeding() {
-            if (this.left == null) {
-                return this.vt;
-            } else if (this.parent.getVt() > this.vt) {
-
-            } else {
-
-            }
-
-            return 1;
         }
 
         public int calcHeight() {
