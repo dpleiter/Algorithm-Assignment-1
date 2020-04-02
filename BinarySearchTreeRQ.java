@@ -84,7 +84,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             return -1;
         }
 
-        return node.calcTimeOfSucceeding(procLabel);
+        return node.calcTimeOfPreceeding(procLabel);
     } // end of precedingProcessTime()
 
     @Override
@@ -95,13 +95,12 @@ public class BinarySearchTreeRQ implements Runqueue {
             return -1;
         }
 
-        return node.calcTimeOfPreceeding(procLabel);
+        return node.calcTimeOfSucceeding(procLabel);
     } // end of precedingProcessTime()
 
     @Override
     public void printAllProcesses(PrintWriter os) {
         this.head.printTree(os);
-        // System.out.println("\n");
         os.print("\n");
     }
 
@@ -231,7 +230,6 @@ public class BinarySearchTreeRQ implements Runqueue {
 
             for (int i = 0; i < this.numLabels; i++) {
                 os.print(this.procLabels[i] + " ");
-                // System.out.print(this.procLabels[i] + " ");
             }
 
             if (this.right != null) {
@@ -286,7 +284,7 @@ public class BinarySearchTreeRQ implements Runqueue {
                 }
             }
 
-            if (this.left == null) {
+            if (this.right == null) {
                 rightChildTime = 0;
             } else {
                 rightChildTime = this.right.findTimeOfTree();
@@ -295,7 +293,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             if (this.parent == null || this.parent.getVt() < this.vt) {
                 parentTime = 0;
             } else {
-                parentTime = this.parent.calcTimeOfPreceeding(null);
+                parentTime = this.parent.calcTimeOfSucceeding(null);
             }
 
             return thisTime + rightChildTime + parentTime;
