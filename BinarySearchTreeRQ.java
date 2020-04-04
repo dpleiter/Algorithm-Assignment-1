@@ -133,18 +133,17 @@ public class BinarySearchTreeRQ implements Runqueue {
             Node newNode = new Node(procLabel, vt);
 
             if (vt == this.vt) {
-                // add duplicate key
                 addDuplicateProc(newNode);
             } else if (vt < this.vt) {
                 if (this.left == null) {
-                    this.left = new Node(procLabel, vt);
+                    this.left = newNode;
                     this.left.setParent(this);
                 } else {
                     this.left.addChild(procLabel, vt);
                 }
             } else {
                 if (this.right == null) {
-                    this.right = new Node(procLabel, vt);
+                    this.right = newNode;
                     this.right.setParent(this);
                 } else {
                     this.right.addChild(procLabel, vt);
@@ -153,13 +152,11 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         public void addDuplicateProc(Node newNode) {
-            if (this.right == null) {
-                this.right = newNode;
-                this.right.setParent(this);
-            } else if (this.vt != newNode.getVt()) {
+            if (this.vt != newNode.getVt() || this.right == null) {
                 newNode.setRight(this);
                 newNode.setParent(this.parent);
 
+                this.parent.setRight(newNode);
                 this.parent = newNode;
             } else {
                 this.right.addDuplicateProc(newNode);
