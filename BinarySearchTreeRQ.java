@@ -32,13 +32,13 @@ public class BinarySearchTreeRQ implements Runqueue {
     public String dequeue() {
         Node nodeToDequeue = head.findMinimumVt();
 
-        if (nodeToDequeue == this.head && this.head.getNumProcLabels() == 1) {
-            if (this.head.getRight() != null) {
-                this.head = this.head.getRight();
+        if (nodeToDequeue == this.head) {
+            this.head = this.head.getRight();
+
+            if (this.head != null) {
                 this.head.setParent(null);
             } else {
                 // dequeue last item in tree
-                this.head = null;
                 return nodeToDequeue.dequeue();
             }
         }
@@ -112,8 +112,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     private class Node {
         private int vt;
-        private String[] procLabels;
-        private int numLabels;
+        private String procLabel;
 
         private Node parent;
         private Node left;
@@ -124,26 +123,18 @@ public class BinarySearchTreeRQ implements Runqueue {
         public Node(String procLabel, int vt) {
             this.vt = vt;
 
-            this.procLabels = new String[] { procLabel };
-            this.numLabels = 1;
+            this.procLabel = procLabel;
 
             this.left = null;
             this.right = null;
         }
 
         public void addChild(String procLabel, int vt) {
+            Node newNode = new Node(procLabel, vt);
+
             if (vt == this.vt) {
                 // add duplicate key
-                String[] newProcLabels = new String[this.numLabels + 1];
-
-                for (int i = 0; i < this.numLabels; i++) {
-                    newProcLabels[i] = procLabels[i];
-                }
-
-                newProcLabels[numLabels] = procLabel;
-
-                procLabels = newProcLabels;
-                this.numLabels++;
+                addDuplicateProc(newNode);
             } else if (vt < this.vt) {
                 if (this.left == null) {
                     this.left = new Node(procLabel, vt);
@@ -161,37 +152,36 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
-        public String dequeue() {
-            if (this.numLabels == 1) {
-                if (this.parent != null) {
-                    // If not head node
-                    this.parent.setLeft(this.right);
-                }
+        public void addDuplicateProc(Node newNode) {
+            if (this.right == null) {
+                this.right = newNode;
+                this.right.setParent(this);
+            } else if (this.vt != newNode.getVt()) {
+                newNode.setRight(this);
+                newNode.setParent(this.parent);
 
-                if (this.right != null) {
-                    this.right.setParent(this.parent);
-                }
-
-                return procLabels[0];
+                this.parent = newNode;
             } else {
-                // pop first procLabel
-                String procToDequeue = procLabels[0];
-
-                for (int i = 1; i < this.numLabels; i++) {
-                    procLabels[i - 1] = this.procLabels[i];
-                }
-
-                numLabels--;
-
-                return procToDequeue;
+                this.right.addDuplicateProc(newNode);
             }
         }
 
+        public String dequeue() {
+            if (this.parent != null) {
+                // If not head node
+                this.parent.setLeft(this.right);
+            }
+
+            if (this.right != null) {
+                this.right.setParent(this.parent);
+            }
+
+            return this.procLabel;
+        }
+
         public Boolean findProcLabel(String procLabel) {
-            for (int i = 0; i < this.numLabels; i++) {
-                if (procLabels[i].compareTo(procLabel) == 0) {
-                    return true;
-                }
+            if (this.procLabel.compareTo(procLabel) == 0) {
+                return true;
             }
 
             return (this.left != null && this.left.findProcLabel(procLabel))
@@ -199,53 +189,38 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         public Node removeProcess(String procLabel) {
-            if (this.numLabels == 1) {
-                // delete node
-                int leftHeight = this.left == null ? 0 : this.left.getHeight();
-                int rightHeight = this.right == null ? 0 : this.right.getHeight();
+            // delete node
+            int leftHeight = this.left == null ? 0 : this.left.getHeight();
+            int rightHeight = this.right == null ? 0 : this.right.getHeight();
 
-                Node replacementNode;
+            Node replacementNode;
 
-                if (this.height == 0) {
-                    // leaf node
-                    return null;
-                } else if (leftHeight > rightHeight) {
-                    replacementNode = this.left.findMaximumVt();
+            if (this.height == 0) {
+                // leaf node
+                return null;
+            } else if (leftHeight > rightHeight) {
+                replacementNode = this.left.findMaximumVt();
 
-                    if (this.left != replacementNode) {
-                        replacementNode.getParent().setRight(replacementNode.getLeft());
-                        replacementNode.setLeft(this.left);
-                    }
-
-                    replacementNode.setRight(this.right);
-                } else {
-                    replacementNode = this.right.findMinimumVt();
-
-                    if (this.right != replacementNode) {
-                        replacementNode.getParent().setLeft(replacementNode.getRight());
-                        replacementNode.setRight(this.right);
-                    }
-
+                if (this.left != replacementNode) {
+                    replacementNode.getParent().setRight(replacementNode.getLeft());
                     replacementNode.setLeft(this.left);
                 }
 
-                replacementNode.setParent(this.parent);
-
-                return replacementNode;
+                replacementNode.setRight(this.right);
             } else {
-                for (int i = 0; i < this.numLabels; i++) {
-                    if (this.procLabels[i].compareTo(procLabel) == 0) {
-                        for (int j = i; j < this.numLabels - 1; j++) {
-                            procLabels[j] = procLabels[j + 1];
-                        }
-                        numLabels--;
+                replacementNode = this.right.findMinimumVt();
 
-                        break;
-                    }
+                if (this.right != replacementNode) {
+                    replacementNode.getParent().setLeft(replacementNode.getRight());
+                    replacementNode.setRight(this.right);
                 }
 
-                return this;
+                replacementNode.setLeft(this.left);
             }
+
+            replacementNode.setParent(this.parent);
+
+            return replacementNode;
         }
 
         public int calcTimeOfPreceeding(String procLabel) {
@@ -254,14 +229,9 @@ public class BinarySearchTreeRQ implements Runqueue {
             int thisTime = 0;
 
             if (procLabel == null) {
-                thisTime = this.vt * this.numLabels;
+                thisTime = this.vt;
             } else {
-                for (int i = 0; i < this.numLabels; i++) {
-                    if (this.procLabels[i].compareTo(procLabel) == 0) {
-                        thisTime = this.vt * i;
-                        break;
-                    }
-                }
+                thisTime = 0;
             }
 
             if (this.left == null) {
@@ -285,14 +255,9 @@ public class BinarySearchTreeRQ implements Runqueue {
             int thisTime = 0;
 
             if (procLabel == null) {
-                thisTime = this.vt * this.numLabels;
+                thisTime = this.vt;
             } else {
-                for (int i = 0; i < this.numLabels; i++) {
-                    if (this.procLabels[i].compareTo(procLabel) == 0) {
-                        thisTime = this.vt * (this.numLabels - i - 1);
-                        break;
-                    }
-                }
+                thisTime = 0;
             }
 
             if (this.right == null) {
@@ -315,9 +280,7 @@ public class BinarySearchTreeRQ implements Runqueue {
                 this.left.printTree(os);
             }
 
-            for (int i = 0; i < this.numLabels; i++) {
-                os.print(this.procLabels[i] + " ");
-            }
+            os.print(this.procLabel + " ");
 
             if (this.right != null) {
                 this.right.printTree(os);
@@ -329,10 +292,8 @@ public class BinarySearchTreeRQ implements Runqueue {
             Node findInLeftChild;
             Node findInRightChild;
 
-            for (int i = 0; i < this.numLabels; i++) {
-                if (this.procLabels[i].compareTo(procLabel) == 0) {
-                    return this;
-                }
+            if (this.procLabel.compareTo(procLabel) == 0) {
+                return this;
             }
 
             if (this.left == null) {
@@ -384,7 +345,7 @@ public class BinarySearchTreeRQ implements Runqueue {
                 timeOfRightChild = this.right.findTimeOfTree();
             }
 
-            return timeOfLeftChild + timeOfRightChild + this.numLabels * this.vt;
+            return timeOfLeftChild + timeOfRightChild + this.vt;
         }
 
         public Node rebalanceTree() {
@@ -467,8 +428,8 @@ public class BinarySearchTreeRQ implements Runqueue {
             return this.vt;
         }
 
-        public int getNumProcLabels() {
-            return this.numLabels;
+        public String getProcLabel() {
+            return this.procLabel;
         }
 
         public int getHeight() {
@@ -511,12 +472,8 @@ public class BinarySearchTreeRQ implements Runqueue {
         // Delete in final version
         private void printDetails() {
             // For testing
-            System.out.print("\nDetails of nodes: ");
-            for (int i = 0; i < this.numLabels; i++) {
-                System.out.print(procLabels[i] + " ");
-            }
-
-            System.out.println("\nNumber of items: " + Integer.toString(numLabels));
+            System.out.print("\nDetails of node: ");
+            System.out.println(this.procLabel);
 
             System.out.println("VT: " + Integer.toString(this.vt));
 
@@ -525,15 +482,15 @@ public class BinarySearchTreeRQ implements Runqueue {
             if (this.parent == null) {
                 System.out.println("HEAD NODE");
             } else {
-                System.out.println("Parent: " + parent.getVt());
+                System.out.println("Parent: " + parent.getProcLabel());
             }
 
             if (left != null) {
-                System.out.println("Left Child: " + left.getVt());
+                System.out.println("Left Child: " + left.getProcLabel());
             }
 
             if (right != null) {
-                System.out.println("Right Child: " + right.getVt());
+                System.out.println("Right Child: " + right.getProcLabel());
             }
         }
 
