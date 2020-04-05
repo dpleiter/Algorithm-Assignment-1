@@ -48,6 +48,7 @@ public class RunqueueTester {
 	public static void processOperations(BufferedReader inReader, Runqueue queue, PrintWriter processOutWriter)
         throws IOException
     {
+		
         String line;
         // current line number, which reflect how many commands have been entered.
         int lineNum = 1;
@@ -229,8 +230,19 @@ public class RunqueueTester {
 
                 PrintWriter outWriter = new PrintWriter(new FileWriter(outputFilename), true);
 
-                // process the operations
+                // process the operations -- ADD TIMER HERE
+                long startTime = System.nanoTime();
+               
                 processOperations(inReader, queue, outWriter);
+                
+                long endTime = System.nanoTime(); 
+                double estimatedTime = ((double)(endTime - startTime)) / Math.pow(10 ,9);
+                outWriter.write(Double.toString(estimatedTime));
+                System.out.println("Time taken: " + estimatedTime);
+                
+                
+            	outWriter.close();
+            	inReader.close();
             }
             catch (FileNotFoundException ex) {
                 System.err.println("One of the specified files not found.");

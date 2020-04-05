@@ -104,8 +104,8 @@ public class DataGenerator
 			samples = gen.sampleWithOutReplacement(sampleSize);
 			
 			// Write samples to file
-			PrintWriter enqueueWriter = new PrintWriter("enqueue.txt", "UTF-8");
-			PrintWriter dequeueWriter = new PrintWriter("dequeue.txt", "UTF-8");
+			PrintWriter enqueueWriter = new PrintWriter("enqueue" + sampleSize + ".txt", "UTF-8");
+			PrintWriter dequeueWriter = new PrintWriter("dequeue" + sampleSize + ".txt", "UTF-8");
 			if (samples != null) {
 				for (int i = 0; i < samples.length; i++) {
 					enqueueWriter.println("EN P" + samples[i][0] + " " + samples[i][1]);
