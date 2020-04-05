@@ -7,10 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.String;
 
-
 /**
- * Framework to test the process scheduler implementations.
- * NO NEED TO MODIFY THIS FILE.
+ * Framework to test the process scheduler implementations. NO NEED TO MODIFY
+ * THIS FILE.
  *
  * @author Sajal Halder, Minyi Li, Jeffrey Chan
  */
@@ -19,36 +18,35 @@ public class RunqueueTester {
     /** Name of class, used in error messages. */
     protected static final String progName = "RunqueueTester";
 
-
     /**
      * Print help/usage message.
      */
     public static void usage(String progName) {
         System.err.println(progName + ": <implementation> [filename of input commands] [filename to print output]");
         System.err.println("<implementation> = <array | linkedlist | tree>");
-        System.err.println("If optional filenames are specified, then the " +
-            "non-interative mode will be used and output is written to the " +
-            " specified output file.  Otherwise interative mode is assumed and " +
-            " output is written to System.out.");
+        System.err.println("If optional filenames are specified, then the "
+                + "non-interative mode will be used and output is written to the "
+                + " specified output file.  Otherwise interative mode is assumed and "
+                + " output is written to System.out.");
 
         System.exit(1);
-   	 } // end of usage()
+    } // end of usage()
 
-
-	/**
-	 * Process the operation commands coming from inReader, and updates the
-     * process queue according to the operations.
+    /**
+     * Process the operation commands coming from inReader, and updates the process
+     * queue according to the operations.
      *
-	 * @param inReader Input reader where the operation commands are coming from.
-	 * @param queue The queue structure which the operations are executed on.
-	 * @param processOutWriter Where to send the results of running the commands.
+     * @param inReader         Input reader where the operation commands are coming
+     *                         from.
+     * @param queue            The queue structure which the operations are executed
+     *                         on.
+     * @param processOutWriter Where to send the results of running the commands.
      *
-	 * @throws IOException Thrown if there is an I/O based exception.
-	 */
-	public static void processOperations(BufferedReader inReader, Runqueue queue, PrintWriter processOutWriter)
-        throws IOException
-    {
-		
+     * @throws IOException Thrown if there is an I/O based exception.
+     */
+    public static void processOperations(BufferedReader inReader, Runqueue queue, PrintWriter processOutWriter)
+            throws IOException {
+      
         String line;
         // current line number, which reflect how many commands have been entered.
         int lineNum = 1;
@@ -77,12 +75,10 @@ public class RunqueueTester {
                             int vt = Integer.parseInt(tokens[2]);
                             if (vt < 0) {
                                 System.err.println(lineNum + ": process run time must be non-negative.");
-                            }
-                            else {
+                            } else {
                                 queue.enqueue(tokens[1], vt);
                             }
-                        }
-                        else {
+                        } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");
                         }
 
@@ -91,9 +87,8 @@ public class RunqueueTester {
                     case "DE":
                         if (tokens.length == 1) {
                             String procName = queue.dequeue();
-				    		processOutWriter.println(procName);
-                        }
-                        else {
+                            processOutWriter.println(procName);
+                        } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");
                         }
 
@@ -102,9 +97,8 @@ public class RunqueueTester {
                     case "FP":
                         if (tokens.length == 2) {
                             boolean status = queue.findProcess(tokens[1]);
-						    processOutWriter.println(status);
-                        }
-                        else {
+                            processOutWriter.println(status);
+                        } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");
                         }
 
@@ -113,9 +107,8 @@ public class RunqueueTester {
                     case "RP":
                         if (tokens.length == 2) {
                             boolean status = queue.removeProcess(tokens[1]);
-				    	    processOutWriter.println(status);
-                        }
-                        else {
+                            processOutWriter.println(status);
+                        } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");
                         }
 
@@ -124,9 +117,8 @@ public class RunqueueTester {
                     case "PT":
                         if (tokens.length == 2) {
                             int value = queue.precedingProcessTime(tokens[1]);
-				            processOutWriter.println(value);
-                        }
-                        else {
+                            processOutWriter.println(value);
+                        } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");
                         }
 
@@ -135,9 +127,8 @@ public class RunqueueTester {
                     case "ST":
                         if (tokens.length == 2) {
                             int value = queue.succeedingProcessTime(tokens[1]);
-				            processOutWriter.println(value);
-                        }
-                        else {
+                            processOutWriter.println(value);
+                        } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");
                         }
 
@@ -153,16 +144,14 @@ public class RunqueueTester {
                     default:
                         System.err.println(lineNum + ": Unknown command.");
                 } // end of switch
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 System.err.println(e.getMessage());
             } // end of try-catch block
 
             lineNum++;
         } // end of while loop
 
-	} // end of processOperations()
-
+    } // end of processOperations()
 
     /**
      * Main method.
@@ -185,12 +174,12 @@ public class RunqueueTester {
 
         // determine which implementation to test
         Runqueue queue = null;
-        switch(implementationType) {
+        switch (implementationType) {
             case "array":
                 queue = new OrderedArrayRQ();
                 break;
             case "linkedlist":
-                queue  = new OrderedLinkedListRQ();
+                queue = new OrderedLinkedListRQ();
                 break;
             case "tree":
                 queue = new BinarySearchTreeRQ();
@@ -213,19 +202,17 @@ public class RunqueueTester {
             commandInputFilename = args[1];
             outputFilename = args[2];
             bInteractive = false;
-        }
-        else {
+        } else {
             // Interactive mode
             System.out.println("Running in Interative mode.");
         }
 
-
         // if not interactive mode
         if (!bInteractive) {
-		    System.out.println("Loading commands from " + commandInputFilename + ".");
+            System.out.println("Loading commands from " + commandInputFilename + ".");
 
             try {
-                assert(commandInputFilename != null && outputFilename != null);
+                assert (commandInputFilename != null && outputFilename != null);
                 BufferedReader inReader = new BufferedReader(new FileReader(commandInputFilename));
 
                 PrintWriter outWriter = new PrintWriter(new FileWriter(outputFilename), true);
@@ -240,18 +227,15 @@ public class RunqueueTester {
                 outWriter.write(Double.toString(estimatedTime));
                 System.out.println("Time taken: " + estimatedTime);
                 
-                
-            	outWriter.close();
-            	inReader.close();
-            }
-            catch (FileNotFoundException ex) {
+                outWriter.close();
+                inReader.close();
+           
+            } catch (FileNotFoundException ex) {
                 System.err.println("One of the specified files not found.");
-            }
-            catch(IOException ex) {
+            } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } // end of try-catch block
-        }
-        else {
+        } else {
             // construct in and output streams/writers/readers, then process each operation.
             try {
                 BufferedReader inReader = new BufferedReader(new InputStreamReader(System.in));
@@ -260,6 +244,8 @@ public class RunqueueTester {
 
                 // process the operations
                 processOperations(inReader, queue, outWriter);
+
+                outWriter.close();
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } // end of try-catch block
