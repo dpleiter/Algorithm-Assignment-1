@@ -85,7 +85,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             return -1;
         }
 
-        return node.calcTimeOfPreceeding(procLabel);
+        return node.calcTimeOfPreceeding(null);
     } // end of precedingProcessTime()
 
     @Override
@@ -96,7 +96,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             return -1;
         }
 
-        return node.calcTimeOfSucceeding(procLabel);
+        return node.calcTimeOfSucceeding(null);
     } // end of precedingProcessTime()
 
     @Override
@@ -222,56 +222,54 @@ public class BinarySearchTreeRQ implements Runqueue {
             return replacementNode;
         }
 
-        public int calcTimeOfPreceeding(String procLabel) {
+        public int calcTimeOfPreceeding(Node callingNode) {
             int leftChildTime;
             int parentTime;
-            int thisTime = 0;
+            int thisTime;
 
-            if (procLabel == null) {
-                thisTime = this.vt;
-            } else {
+            if (callingNode == null) {
+                // Initial call of method
                 thisTime = 0;
-            }
-
-            if (this.left == null) {
+                leftChildTime = this.left == null ? 0 : this.left.findTimeOfTree();
+            } else if (callingNode == this.left) {
+                thisTime = 0;
                 leftChildTime = 0;
             } else {
-                leftChildTime = this.left.findTimeOfTree();
+                thisTime = this.vt;
+                leftChildTime = this.left == null ? 0 : this.left.findTimeOfTree();
             }
 
-            if (this.parent == null || this.parent.getVt() > this.vt) {
-                parentTime = 0;
+            if (this.parent == null) {
+                return thisTime + leftChildTime;
             } else {
-                parentTime = this.parent.calcTimeOfPreceeding(null);
+                parentTime = this.parent.calcTimeOfPreceeding(this);
+                return leftChildTime + parentTime + thisTime;
             }
-
-            return thisTime + leftChildTime + parentTime;
         }
 
-        public int calcTimeOfSucceeding(String procLabel) {
+        public int calcTimeOfSucceeding(Node callingNode) {
             int rightChildTime;
             int parentTime;
-            int thisTime = 0;
+            int thisTime;
 
-            if (procLabel == null) {
-                thisTime = this.vt;
-            } else {
+            if (callingNode == null) {
+                // Initial call of method
                 thisTime = 0;
-            }
-
-            if (this.right == null) {
+                rightChildTime = this.right == null ? 0 : this.right.findTimeOfTree();
+            } else if (callingNode == this.right) {
+                thisTime = 0;
                 rightChildTime = 0;
             } else {
-                rightChildTime = this.right.findTimeOfTree();
+                thisTime = this.vt;
+                rightChildTime = this.right == null ? 0 : this.right.findTimeOfTree();
             }
 
-            if (this.parent == null || this.parent.getVt() < this.vt) {
-                parentTime = 0;
+            if (this.parent == null) {
+                return thisTime + rightChildTime;
             } else {
-                parentTime = this.parent.calcTimeOfSucceeding(null);
+                parentTime = this.parent.calcTimeOfSucceeding(this);
+                return rightChildTime + parentTime + thisTime;
             }
-
-            return thisTime + rightChildTime + parentTime;
         }
 
         public void printTree(PrintWriter os) {
