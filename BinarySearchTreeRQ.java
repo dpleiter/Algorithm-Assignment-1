@@ -18,14 +18,15 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public void enqueue(String procLabel, int vt) {
-        // Node nodeToAdd = new Node(procLabel, vt);
+        Node nodeToAdd = new Node(procLabel, vt);
         if (head == null) {
-            this.head = new Node(procLabel, vt);
+            this.head = nodeToAdd;
         } else {
-            this.head.addChild(procLabel, vt);
+            this.head.addChild(nodeToAdd);
         }
 
-        this.head = this.head.rebalanceTree();
+        // this.head = this.head.rebalanceTree();
+        this.head = nodeToAdd.rebalanceTree2(null, null, false);
     }
 
     @Override
@@ -106,7 +107,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     // Delete in final
     public void printAllDetails() {
-        System.out.println("\nXXXXXXXX");
+        System.out.println("XXXXXXXXXXXXX");
         this.head.printEverything();
     }
 
@@ -129,35 +130,36 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.right = null;
         }
 
-        public void addChild(String procLabel, int vt) {
-            Node newNode = new Node(procLabel, vt);
-
-            if (vt == this.vt) {
-                addDuplicateProc(newNode);
-            } else if (vt < this.vt) {
+        public void addChild(Node nodeToAdd) {
+            if (nodeToAdd.getVt() == this.vt) {
+                addDuplicateProc(nodeToAdd);
+            } else if (nodeToAdd.getVt() < this.vt) {
                 if (this.left == null) {
-                    this.left = newNode;
+                    this.left = nodeToAdd;
                     this.left.setParent(this);
                 } else {
-                    this.left.addChild(procLabel, vt);
+                    this.left.addChild(nodeToAdd);
                 }
             } else {
                 if (this.right == null) {
-                    this.right = newNode;
+                    this.right = nodeToAdd;
                     this.right.setParent(this);
                 } else {
-                    this.right.addChild(procLabel, vt);
+                    this.right.addChild(nodeToAdd);
                 }
             }
         }
 
         public void addDuplicateProc(Node newNode) {
-            if (this.vt != newNode.getVt() || this.right == null) {
+            if (this.vt != newNode.getVt()) {
                 newNode.setRight(this);
                 newNode.setParent(this.parent);
 
                 this.parent.setRight(newNode);
                 this.parent = newNode;
+            } else if (this.right == null) {
+                newNode.setParent(this);
+                this.right = newNode;
             } else {
                 this.right.addDuplicateProc(newNode);
             }
@@ -370,19 +372,67 @@ public class BinarySearchTreeRQ implements Runqueue {
             return newRoot;
         }
 
+        @SuppressWarnings({ "unused" })
+        public Node rebalanceTree2(Node oldNode, Node newNode, Boolean test) {
+            int leftHeight = getLeftHeight();
+            int rightHeight = getRightHeight();
+
+            Node newRoot = this;
+            Node oldRoot = this;
+
+            Boolean performedRebalancing = test;
+            Boolean isHead = this.parent == null;
+
+            if (oldNode != newNode) {
+                this.left = this.left == oldNode ? newNode : this.left;
+                this.right = this.right == oldNode ? newNode : this.right;
+            }
+
+            if (performedRebalancing) {
+                if (this.parent == null) {
+                    return this;
+                } else {
+                    return this.parent.rebalanceTree2(null, null, true);
+                }
+            }
+
+            if (leftHeight - rightHeight > 1) {
+                newRoot = rightRotate();
+                performedRebalancing = true;
+            }
+
+            if (rightHeight - leftHeight > 1) {
+                newRoot = leftRotate();
+                performedRebalancing = true;
+            }
+
+            this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
+
+            return isHead ? newRoot : newRoot.getParent().rebalanceTree2(oldRoot, newRoot, performedRebalancing);
+        }
+
         private Node rightRotate() {
             if (this.left.getRightHeight() > this.left.getLeftHeight()) {
                 this.left = this.left.leftRotate();
             }
 
+            // new root of subtree to be pointed to by parent
             Node newRoot = this.left;
 
+            // Move pointers around
             this.left = newRoot.getRight();
+
+            if (this.left != null) {
+                this.left.setParent(this);
+            }
+
             newRoot.setParent(this.parent);
 
             this.parent = newRoot;
+
             newRoot.setRight(this);
 
+            // Set new heights
             this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
             newRoot.setHeight(Math.max(newRoot.getLeftHeight(), newRoot.getRightHeight()) + 1);
 
@@ -394,14 +444,22 @@ public class BinarySearchTreeRQ implements Runqueue {
                 this.right = this.right.rightRotate();
             }
 
+            // new root of subtree to be pointed to by parent
             Node newRoot = this.right;
 
+            // Move pointers around
             this.right = newRoot.getLeft();
+
+            if (this.right != null) {
+                this.right.setParent(this);
+            }
+
             newRoot.setParent(this.parent);
 
             this.parent = newRoot;
             newRoot.setLeft(this);
 
+            // Set new heights
             this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
             newRoot.setHeight(Math.max(newRoot.getLeftHeight(), newRoot.getRightHeight()) + 1);
 
