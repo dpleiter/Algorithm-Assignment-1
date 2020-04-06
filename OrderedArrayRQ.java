@@ -46,7 +46,6 @@ public class OrderedArrayRQ implements Runqueue {
 
 	@Override
 	public String dequeue() throws NullPointerException {
-		// Implement me
 		if (array == null) {
 			throw new NullPointerException("Nothing to dequeue.");
 		}
@@ -149,6 +148,7 @@ public class OrderedArrayRQ implements Runqueue {
 		os.print("\n");
 	} // end of printAllProcesses()
 
+	// 
 	public Integer getPosition(String procLabel) {
 		for (int i = 0; i < array.length; i++) {
 			if (procLabel.equalsIgnoreCase(array[i].getProcLabel())) {
@@ -160,13 +160,31 @@ public class OrderedArrayRQ implements Runqueue {
 	}
 
 	public Integer getPosition(int vt) {
-		for (int i = 0; i < array.length; i++) {
-			if (vt < array[i].getRunTime()) {
-				return i;
-			}
-		}
-
-		return array.length;
+		
+        int first = 0;
+        int last = array.length - 1;
+        
+        if(array.length == 1) {
+        	if(array[0].getRunTime() <= vt)
+        		return 1;
+        	else
+        		return 0;
+        } else {
+            while(first <= last) {
+            	int mid = (int)Math.ceil((first + last) / 2);
+            	
+            	if(array[first].getRunTime() <= vt && array[last].getRunTime() < vt) {
+            		return last+1;
+            	} else if(array[mid].getRunTime() < vt) {
+            		first = mid + 1;
+            	} else if(array[mid].getRunTime() > vt) {
+            		last = mid - 1;
+            	}
+            }
+        }
+        
+        return first;
+	
 	}
 
 	private class Proc {
