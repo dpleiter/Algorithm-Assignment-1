@@ -50,7 +50,21 @@ public class OrderedLinkedListRQ implements Runqueue {
 			this.mTail = newProc;
 		} else {
 			// Insert somewhere between head and tail
-			this.mHead.addProc(newProc);
+			Proc currProc = this.mHead.getNext();
+
+			while (true) {
+				if (newProc.getRunTime() < currProc.getRunTime()) {
+					newProc.setPrev(currProc.getPrev());
+					newProc.getPrev().setNext(newProc);
+
+					newProc.setNext(currProc);
+					currProc.setPrev(newProc);
+
+					break;
+				}
+
+				currProc = currProc.getNext();
+			}
 		}
 	} // end of enqueue()
 
@@ -72,26 +86,30 @@ public class OrderedLinkedListRQ implements Runqueue {
 
 	@Override
 	public boolean findProcess(String procLabel) {
-		return this.mHead.getProcByLabel(procLabel) != null;
+		return getProcByLabel(procLabel) != null;
 	} // end of findProcess()
 
 	@Override
 	public boolean removeProcess(String procLabel) {
-		Proc procToRemove = this.mHead.getProcByLabel(procLabel);
+		Proc procToRemove = getProcByLabel(procLabel);
 
 		if (procToRemove == null) {
+			// Proc label not found
 			return false;
 		} else if (this.mHead == this.mTail) {
 			// Last item in list
 			this.mHead = null;
 			this.mTail = null;
 		} else if (procToRemove == this.mHead) {
+			// Remove head
 			this.mHead = this.mHead.getNext();
 			this.mHead.setPrev(null);
 		} else if (procToRemove == this.mTail) {
+			// Remove tail
 			this.mTail = this.mTail.getPrev();
 			this.mTail.setNext(null);
 		} else {
+			// remove other
 			procToRemove.getPrev().setNext(procToRemove.getNext());
 			procToRemove.getNext().setPrev(procToRemove.getPrev());
 		}
@@ -101,16 +119,38 @@ public class OrderedLinkedListRQ implements Runqueue {
 
 	@Override
 	public int precedingProcessTime(String procLabel) {
-		Proc proc = this.mHead.getProcByLabel(procLabel);
+		Proc proc = getProcByLabel(procLabel);
+		int sum = 0;
 
-		return proc == null ? -1 : (proc.calcPreceedingTime() - proc.getRunTime());
+		if (proc == null) {
+			return -1;
+		}
+
+		while (proc.getPrev() != null) {
+			proc = proc.getPrev();
+
+			sum += proc.getRunTime();
+		}
+
+		return sum;
 	} // end of precedingProcessTime()
 
 	@Override
 	public int succeedingProcessTime(String procLabel) {
-		Proc proc = this.mHead.getProcByLabel(procLabel);
+		Proc proc = getProcByLabel(procLabel);
+		int sum = 0;
 
-		return proc == null ? -1 : (proc.calcSucceedingTime() - proc.getRunTime());
+		if (proc == null) {
+			return -1;
+		}
+
+		while (proc.getNext() != null) {
+			proc = proc.getNext();
+
+			sum += proc.getRunTime();
+		}
+
+		return sum;
 	} // end of precedingProcessTime()
 
 	@Override
@@ -126,8 +166,22 @@ public class OrderedLinkedListRQ implements Runqueue {
 		os.println(processes.trim());
 	} // end of printAllProcess()
 
-	private class Proc {
+	// Helper method
+	private Proc getProcByLabel(String proclabel) {
+		Proc currentProc = this.mHead;
 
+		while (currentProc != null) {
+			if (currentProc.getProcLabel().compareTo(proclabel) == 0) {
+				return currentProc;
+			}
+
+			currentProc = currentProc.getNext();
+		}
+
+		return null;
+	}
+
+	private class Proc {
 		/** Process Label. */
 		protected String mProcLabel;
 
@@ -145,44 +199,6 @@ public class OrderedLinkedListRQ implements Runqueue {
 			mVt = vt;
 			mNext = null;
 			mPrev = null;
-		}
-
-		public void addProc(Proc newProc) {
-			// Find position to add node using recursion
-			if (newProc.getRunTime() < this.mVt) {
-				newProc.setPrev(this.mPrev);
-				newProc.getPrev().setNext(newProc);
-
-				newProc.setNext(this);
-				this.mPrev = newProc;
-			} else {
-				this.mNext.addProc(newProc);
-			}
-		}
-
-		public int calcPreceedingTime() {
-			if (this.mPrev == null) {
-				return this.mVt;
-			} else {
-				return this.mPrev.calcPreceedingTime() + this.mVt;
-			}
-		}
-
-		public int calcSucceedingTime() {
-			if (this.mNext == null) {
-				return this.mVt;
-			} else {
-				return this.mNext.calcSucceedingTime() + this.mVt;
-			}
-		}
-
-		// Helper function
-		public Proc getProcByLabel(String procToFind) {
-			if (this.mProcLabel.compareTo(procToFind) == 0) {
-				return this;
-			} else {
-				return mNext == null ? null : mNext.getProcByLabel(procToFind);
-			}
 		}
 
 		public String getProcLabel() {
