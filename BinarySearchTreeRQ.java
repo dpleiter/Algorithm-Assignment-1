@@ -25,7 +25,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.head.addChild(nodeToAdd);
         }
 
-        this.head = nodeToAdd.rebalanceTree2(null, null, false);
+        this.head = nodeToAdd.rebalanceTree(null, null, false);
     }
 
     @Override
@@ -339,6 +339,9 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         public Proc rebalanceTree() {
+            // Rebalance from top down (visits every node in tree)
+
+            // New root to be referenced by calling Proc
             Proc newRoot = this;
 
             if (this.left != null) {
@@ -363,27 +366,29 @@ public class BinarySearchTreeRQ implements Runqueue {
             return newRoot;
         }
 
-        @SuppressWarnings({ "unused" })
-        public Proc rebalanceTree2(Proc oldNode, Proc newNode, Boolean test) {
+        public Proc rebalanceTree(Proc oldChild, Proc newChild, Boolean performedRebalancing) {
+            // Rebalance tree from bottom up (visits only parents up to head)
             int leftHeight = getLeftHeight();
             int rightHeight = getRightHeight();
 
+            // Node to replace this one (to be read by parent)
             Proc newRoot = this;
-            Proc oldRoot = this;
 
-            Boolean performedRebalancing = test;
             Boolean isHead = this.parent == null;
 
-            if (oldNode != newNode) {
-                this.left = this.left == oldNode ? newNode : this.left;
-                this.right = this.right == oldNode ? newNode : this.right;
+            if (oldChild != newChild) {
+                // Reset relevant child reference if new and old are different
+                this.left = this.left == oldChild ? newChild : this.left;
+                this.right = this.right == oldChild ? newChild : this.right;
             }
 
             if (performedRebalancing) {
-                if (this.parent == null) {
+                // Only one rebalancing needed. Now fetch the head node to return to initial
+                // calling method
+                if (isHead) {
                     return this;
                 } else {
-                    return this.parent.rebalanceTree2(null, null, true);
+                    return this.parent.rebalanceTree(null, null, true);
                 }
             }
 
@@ -399,7 +404,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
             this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
 
-            return isHead ? newRoot : newRoot.getParent().rebalanceTree2(oldRoot, newRoot, performedRebalancing);
+            return isHead ? newRoot : newRoot.getParent().rebalanceTree(this, newRoot, performedRebalancing);
         }
 
         private Proc rightRotate() {
