@@ -10,7 +10,7 @@ import java.lang.String;
  * @author Sajal Halder, Minyi Li, Jeffrey Chan
  */
 public class BinarySearchTreeRQ implements Runqueue {
-    Node head;
+    private Node head;
 
     public BinarySearchTreeRQ() {
         this.head = null;
@@ -25,7 +25,6 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.head.addChild(nodeToAdd);
         }
 
-        // this.head = this.head.rebalanceTree();
         this.head = nodeToAdd.rebalanceTree2(null, null, false);
     }
 
@@ -103,12 +102,6 @@ public class BinarySearchTreeRQ implements Runqueue {
     public void printAllProcesses(PrintWriter os) {
         this.head.printTree(os);
         os.print("\n");
-    }
-
-    // Delete in final
-    public void printAllDetails() {
-        System.out.println("XXXXXXXXXXXXX");
-        this.head.printEverything();
     }
 
     private class Node {
@@ -481,10 +474,6 @@ public class BinarySearchTreeRQ implements Runqueue {
             return this.vt;
         }
 
-        public String getProcLabel() {
-            return this.procLabel;
-        }
-
         public int getHeight() {
             return this.height;
         }
@@ -520,44 +509,5 @@ public class BinarySearchTreeRQ implements Runqueue {
         public void setHeight(int height) {
             this.height = height;
         }
-
-        // ***** TESTING METHODS *****
-        // Delete in final version
-        private void printDetails() {
-            // For testing
-            System.out.print("\nDetails of node: ");
-            System.out.println(this.procLabel);
-
-            System.out.println("VT: " + Integer.toString(this.vt));
-
-            System.out.println("Height: " + Integer.toString(height));
-
-            if (this.parent == null) {
-                System.out.println("HEAD NODE");
-            } else {
-                System.out.println("Parent: " + parent.getProcLabel());
-            }
-
-            if (left != null) {
-                System.out.println("Left Child: " + left.getProcLabel());
-            }
-
-            if (right != null) {
-                System.out.println("Right Child: " + right.getProcLabel());
-            }
-        }
-
-        public void printEverything() {
-            if (this.left != null) {
-                this.left.printEverything();
-            }
-
-            printDetails();
-
-            if (this.right != null) {
-                this.right.printEverything();
-            }
-        }
     } // end of class Node
-
 } // end of class BinarySearchTreeRQ
