@@ -103,18 +103,22 @@ public class DataGenerator
 			int[][] samples = null;
 			samples = gen.sampleWithOutReplacement(sampleSize);
 			
-			// Write samples to file
-			PrintWriter enqueueWriter = new PrintWriter("enqueue" + sampleSize + ".txt", "UTF-8");
-			PrintWriter dequeueWriter = new PrintWriter("dequeue" + sampleSize + ".txt", "UTF-8");
+			// Write samples to file		
+			StringBuilder en = new StringBuilder();
+			StringBuilder pt = new StringBuilder();
+			StringBuilder de = new StringBuilder();
+
 			if (samples != null) {
 				for (int i = 0; i < samples.length; i++) {
-					enqueueWriter.println("EN P" + samples[i][0] + " " + samples[i][1]);
-					dequeueWriter.println("DE");
+					en.append("EN P" + samples[i][0] + " " + samples[i][1] + "\n");
+					pt.append("PT P" + samples[i][1] + "\n");
+					de.append("DE\n");
 				}
 			}
-			enqueueWriter.close();
-			dequeueWriter.close();
-
+			StringBuilder processes = en.append(pt).append(de);
+			PrintWriter writer = new PrintWriter("processes_" + sampleSize + ".txt", "UTF-8");
+			writer.print(processes);
+			writer.close();
 		}
 		catch (Exception e) {
 			System.err.println(e.getMessage());
