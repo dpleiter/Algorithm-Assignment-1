@@ -46,7 +46,7 @@ public class RunqueueTester {
      */
     public static void processOperations(BufferedReader inReader, Runqueue queue, PrintWriter processOutWriter)
             throws IOException {
-      
+
         String line;
         // current line number, which reflect how many commands have been entered.
         int lineNum = 1;
@@ -54,6 +54,12 @@ public class RunqueueTester {
 
         // continue reading in commands until we either receive the quit signal
         // or there are no more input commands from input file
+
+        long enqueueStart = 0;
+        long preceedingTimeStart = 0;
+        long dequeueStart = 0;
+        long programEnd = 0;
+
         while (!bQuit && (line = inReader.readLine()) != null) {
             String[] tokens = line.split(" ");
 
@@ -71,6 +77,10 @@ public class RunqueueTester {
                 switch (command.toUpperCase()) {
                     // add process to queue
                     case "EN":
+                        if (enqueueStart == 0) {
+                            enqueueStart = System.nanoTime();
+                        }
+
                         if (tokens.length == 3) {
                             int vt = Integer.parseInt(tokens[2]);
                             if (vt < 0) {
@@ -85,6 +95,10 @@ public class RunqueueTester {
                         break;
                     // remove highest priority process from the queue
                     case "DE":
+                        if (dequeueStart == 0) {
+                            dequeueStart = System.nanoTime();
+                        }
+
                         if (tokens.length == 1) {
                             String procName = queue.dequeue();
                             processOutWriter.println(procName);
@@ -115,6 +129,10 @@ public class RunqueueTester {
                         break;
                     // calculate preceding processes vt
                     case "PT":
+                        if (preceedingTimeStart == 0) {
+                            preceedingTimeStart = System.nanoTime();
+                        }
+
                         if (tokens.length == 2) {
                             int value = queue.precedingProcessTime(tokens[1]);
                             processOutWriter.println(value);
@@ -125,6 +143,10 @@ public class RunqueueTester {
                         break;
                     // calculate succeeding processes vt
                     case "ST":
+                        if (preceedingTimeStart == 0) {
+                            preceedingTimeStart = System.nanoTime();
+                        }
+
                         if (tokens.length == 2) {
                             int value = queue.succeedingProcessTime(tokens[1]);
                             processOutWriter.println(value);
@@ -151,6 +173,11 @@ public class RunqueueTester {
             lineNum++;
         } // end of while loop
 
+        programEnd = System.nanoTime();
+
+        System.out.println(("Enqueue time: " + ((double) (preceedingTimeStart - enqueueStart)) / Math.pow(10, 9)));
+        System.out.println(("PT time: " + ((double) (dequeueStart - preceedingTimeStart)) / Math.pow(10, 9)));
+        System.out.println(("Dequeue time: " + ((double) (programEnd - dequeueStart)) / Math.pow(10, 9)));
     } // end of processOperations()
 
     /**
@@ -217,19 +244,11 @@ public class RunqueueTester {
 
                 PrintWriter outWriter = new PrintWriter(new FileWriter(outputFilename), true);
 
-                // process the operations -- ADD TIMER HERE
-                long startTime = System.nanoTime();
-               
                 processOperations(inReader, queue, outWriter);
-                
-                long endTime = System.nanoTime(); 
-                double estimatedTime = ((double)(endTime - startTime)) / Math.pow(10 ,9);
-                outWriter.write(Double.toString(estimatedTime));
-                System.out.println("Time taken: " + estimatedTime);
-                
+
                 outWriter.close();
                 inReader.close();
-           
+
             } catch (FileNotFoundException ex) {
                 System.err.println("One of the specified files not found.");
             } catch (IOException ex) {

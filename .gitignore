@@ -1,4 +1,5 @@
 *.in
 *.out
 *.class
-processes.txt
+*.txt
+!in/*.txt
