@@ -30,22 +30,25 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public String dequeue() {
-        Proc nodeToDequeue = head.findMinimumVt();
+        Proc nodeToDequeue = this.head.findMinimumVt();
 
         if (nodeToDequeue == this.head) {
+            // Guaranteed to have no left children
             this.head = this.head.getRight();
 
             if (this.head != null) {
+                // if not dequeueing last item in tree
                 this.head.setParent(null);
-            } else {
-                // dequeue last item in tree
-                return nodeToDequeue.dequeue();
             }
+
+            return nodeToDequeue.getProcLabel();
         }
 
-        this.head = this.head.rebalanceTree();
+        nodeToDequeue.dequeue();
 
-        return nodeToDequeue.dequeue();
+        this.head = nodeToDequeue.getParent().rebalanceTree(null, null, false);
+
+        return nodeToDequeue.getProcLabel();
     } // end of dequeue()
 
     @Override
@@ -161,7 +164,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
-        public String dequeue() {
+        public void dequeue() {
             if (this.parent != null) {
                 // If not head node
                 this.parent.setLeft(this.right);
@@ -170,8 +173,6 @@ public class BinarySearchTreeRQ implements Runqueue {
             if (this.right != null) {
                 this.right.setParent(this.parent);
             }
-
-            return this.procLabel;
         }
 
         public Boolean findProcLabel(String procLabel) {
@@ -476,6 +477,10 @@ public class BinarySearchTreeRQ implements Runqueue {
 
         public Proc getRight() {
             return this.right;
+        }
+
+        public String getProcLabel() {
+            return this.procLabel;
         }
 
         public int getVt() {
