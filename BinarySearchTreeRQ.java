@@ -55,7 +55,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public boolean removeProcess(String procLabel) {
-        Proc node = this.head.getNode(procLabel);
+        Proc node = this.head.getProcByLabel(procLabel);
 
         if (node == null) {
             return false;
@@ -78,7 +78,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public int precedingProcessTime(String procLabel) {
-        Proc node = this.head.getNode(procLabel);
+        Proc node = this.head.getProcByLabel(procLabel);
 
         if (node == null) {
             return -1;
@@ -89,7 +89,7 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public int succeedingProcessTime(String procLabel) {
-        Proc node = this.head.getNode(procLabel);
+        Proc node = this.head.getProcByLabel(procLabel);
 
         if (node == null) {
             return -1;
@@ -143,18 +143,21 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
-        public void addDuplicateProc(Proc newNode) {
-            if (this.vt != newNode.getVt()) {
-                newNode.setRight(this);
-                newNode.setParent(this.parent);
-
-                this.parent.setRight(newNode);
-                this.parent = newNode;
-            } else if (this.right == null) {
-                newNode.setParent(this);
-                this.right = newNode;
+        public void addDuplicateProc(Proc nodeToAdd) {
+            if (nodeToAdd.getVt() == this.vt) {
+                if (this.right == null) {
+                    nodeToAdd.setParent(this);
+                    this.right = nodeToAdd;
+                } else {
+                    this.right.addDuplicateProc(nodeToAdd);
+                }
             } else {
-                this.right.addDuplicateProc(newNode);
+                if (this.left == null) {
+                    nodeToAdd.setParent(this);
+                    this.left = nodeToAdd;
+                } else {
+                    this.left.addDuplicateProc(nodeToAdd);
+                }
             }
         }
 
@@ -278,7 +281,7 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         // ***** Helper functions *****
-        public Proc getNode(String procLabel) {
+        public Proc getProcByLabel(String procLabel) {
             Proc findInLeftChild;
             Proc findInRightChild;
 
@@ -289,13 +292,13 @@ public class BinarySearchTreeRQ implements Runqueue {
             if (this.left == null) {
                 findInLeftChild = null;
             } else {
-                findInLeftChild = this.left.getNode(procLabel);
+                findInLeftChild = this.left.getProcByLabel(procLabel);
             }
 
             if (this.right == null) {
                 findInRightChild = null;
             } else {
-                findInRightChild = this.right.getNode(procLabel);
+                findInRightChild = this.right.getProcByLabel(procLabel);
             }
 
             return findInLeftChild == null ? findInRightChild : findInLeftChild;
