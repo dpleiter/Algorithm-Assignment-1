@@ -97,7 +97,7 @@ public class DataGenerator2 {
 		try {
 			// Range of Labels
 			int startOfRange = 0;
-			int endOfRange = 10000;
+			int endOfRange = 50000;
 			
 			int startOfTimeRange = 1;
 			int endOfTimeRange = 100;
