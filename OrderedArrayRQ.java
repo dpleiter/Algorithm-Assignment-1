@@ -175,9 +175,9 @@ public class OrderedArrayRQ implements Runqueue {
             	
             	if(array[first].getRunTime() <= vt && array[last].getRunTime() < vt) {
             		return last+1;
-            	} else if(array[mid].getRunTime() < vt) {
+            	} else if(array[mid].getRunTime() <= vt) {
             		first = mid + 1;
-            	} else if(array[mid].getRunTime() > vt) {
+            	} else if(array[mid].getRunTime() >= vt) {
             		last = mid - 1;
             	}
             }
