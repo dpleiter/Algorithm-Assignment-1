@@ -44,8 +44,10 @@ public class RunqueueTester {
      *
      * @throws IOException Thrown if there is an I/O based exception.
      */
-    public static void processOperations(BufferedReader inReader, Runqueue queue, PrintWriter processOutWriter)
-            throws IOException {
+    public static void processOperations(BufferedReader inReader, Runqueue queue, PrintWriter processOutWriter
+    		, String commandInputFilename) throws IOException {
+
+
 
         String line;
         // current line number, which reflect how many commands have been entered.
@@ -60,7 +62,12 @@ public class RunqueueTester {
         long dequeueStart = 0;
         long programEnd = 0;
 
-        while (!bQuit && (line = inReader.readLine()) != null) {
+        try
+        {
+            String filename= "in/results.txt";
+            FileWriter fw = new FileWriter(filename,true);
+            
+        	while (!bQuit && (line = inReader.readLine()) != null) {
             String[] tokens = line.split(" ");
 
             // check if there is at least an operation command
@@ -178,6 +185,24 @@ public class RunqueueTester {
         System.out.println(("Enqueue time: " + ((double) (preceedingTimeStart - enqueueStart)) / Math.pow(10, 9)));
         System.out.println(("PT time: " + ((double) (dequeueStart - preceedingTimeStart)) / Math.pow(10, 9)));
         System.out.println(("Dequeue time: " + ((double) (programEnd - dequeueStart)) / Math.pow(10, 9)));
+        
+        fw.append(queue.getClass().toString().replace("class ", "")+","
+			+ commandInputFilename.replace("in/processes_", "").replace(".txt", "") +","
+			+((double) (preceedingTimeStart - enqueueStart)) / Math.pow(10, 9)+","
+			+((double) (dequeueStart - preceedingTimeStart)) / Math.pow(10, 9)+","
+			+((double) (programEnd - dequeueStart)) / Math.pow(10, 9)+"\n"
+		);
+        fw.flush();
+        fw.close();
+        
+
+        
+        }
+	    catch(IOException ioe)
+	    {
+	        System.err.println("IOException: " + ioe.getMessage());
+	    }
+ 
     } // end of processOperations()
 
     /**
@@ -244,7 +269,7 @@ public class RunqueueTester {
 
                 PrintWriter outWriter = new PrintWriter(new FileWriter(outputFilename), true);
 
-                processOperations(inReader, queue, outWriter);
+                processOperations(inReader, queue, outWriter, commandInputFilename);
 
                 outWriter.close();
                 inReader.close();
@@ -262,7 +287,7 @@ public class RunqueueTester {
                 PrintWriter outWriter = new PrintWriter(System.out, true);
 
                 // process the operations
-                processOperations(inReader, queue, outWriter);
+                processOperations(inReader, queue, outWriter, commandInputFilename);
 
                 outWriter.close();
             } catch (IOException ex) {
