@@ -186,8 +186,8 @@ public class BinarySearchTreeRQ implements Runqueue {
 
         public Proc removeProcess(String procLabel) {
             // delete node
-            int leftHeight = this.left == null ? 0 : this.left.getHeight();
-            int rightHeight = this.right == null ? 0 : this.right.getHeight();
+            int leftHeight = this.left == null ? -1 : this.left.getHeight();
+            int rightHeight = this.right == null ? -1 : this.right.getHeight();
 
             Proc replacementNode;
 
