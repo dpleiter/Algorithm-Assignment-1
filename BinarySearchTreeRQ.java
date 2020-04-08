@@ -64,7 +64,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             return false;
         }
 
-        Proc newNode = node.removeProcess(procLabel);
+        Proc newNode = node.removeProcess();
 
         if (node == this.head) {
             this.head = newNode;
@@ -184,7 +184,7 @@ public class BinarySearchTreeRQ implements Runqueue {
                     || (this.right != null && this.right.findProcLabel(procLabel));
         }
 
-        public Proc removeProcess(String procLabel) {
+        public Proc removeProcess() {
             // delete node
             int leftHeight = this.left == null ? -1 : this.left.getHeight();
             int rightHeight = this.right == null ? -1 : this.right.getHeight();
@@ -296,13 +296,15 @@ public class BinarySearchTreeRQ implements Runqueue {
                 findInLeftChild = this.left.getProcByLabel(procLabel);
             }
 
-            if (this.right == null) {
+            if (findInLeftChild != null) {
+                return findInLeftChild;
+            } else if (this.right == null) {
                 findInRightChild = null;
             } else {
                 findInRightChild = this.right.getProcByLabel(procLabel);
             }
 
-            return findInLeftChild == null ? findInRightChild : findInLeftChild;
+            return findInRightChild;
         }
 
         private Proc findMinimumVt() {
