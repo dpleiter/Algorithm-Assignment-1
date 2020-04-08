@@ -16,6 +16,17 @@ df$DataStructure <- recode(df$DataStructure, BinarySearchTreeRQ = 'Tree', Ordere
                            OrderedLinkedListRQ = 'LinkedList')
 ```
 
+```{r}
+df_grouped <- df %>% group_by(DataStructure, SampleSize)
+df_grouped <- df_grouped %>% summarise(
+  EnqueueTime = mean(EnqueueTime),
+  PtTime = mean(PtTime),
+  DequeueTime = mean(DequeueTime)
+)
+
+df_grouped
+```
+
 
 ```{r}
 library(ggplot2)
@@ -30,6 +41,24 @@ eq_plt <- ggplot(df, aes(x = SampleSize, y = EnqueueTime, colour = DataStructure
 eq_plt
 ```
 
+
+```{r}
+df_grouped$SampleSize2 <- (df_grouped$SampleSize)^2
+tree_eq_mod <- df_grouped %>% subset(DataStructure=='Tree')
+tree_eq_mod <- lm(EnqueueTime ~ SampleSize, data=tree_eq_mod)
+
+array_eq_mod <- df_grouped %>% subset(DataStructure=='Array')
+array_eq_mod <- lm(EnqueueTime ~ SampleSize+SampleSize2, data=array_eq_mod)
+
+list_eq_mod <- df_grouped %>% subset(DataStructure=='LinkedList')
+list_eq_mod <- lm(EnqueueTime ~ SampleSize+SampleSize2, data=list_eq_mod)
+
+tree_eq_mod
+array_eq_mod
+list_eq_mod
+```
+
+
 ```{r}
 pt_plt <- ggplot(df, aes(x = SampleSize, y = PtTime, colour = DataStructure)) + 
   stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
@@ -40,6 +69,20 @@ pt_plt <- ggplot(df, aes(x = SampleSize, y = PtTime, colour = DataStructure)) +
   xlab("Input Size")
 
 pt_plt
+```
+```{r}
+tree_pt_mod <- df_grouped %>% subset(DataStructure=='Tree')
+tree_pt_mod <- lm(PtTime ~ SampleSize+SampleSize2, data=tree_pt_mod)
+
+array_pt_mod <- df_grouped %>% subset(DataStructure=='Array')
+array_pt_mod <- lm(PtTime ~ SampleSize+SampleSize2, data=array_pt_mod)
+
+list_pt_mod <- df_grouped %>% subset(DataStructure=='LinkedList')
+list_pt_mod <- lm(PtTime ~ SampleSize+SampleSize2, data=list_pt_mod)
+
+tree_pt_mod
+array_pt_mod
+list_pt_mod
 ```
 
 
@@ -55,3 +98,60 @@ dq_plt <- ggplot(df, aes(x = SampleSize, y = DequeueTime, colour = DataStructure
 dq_plt
 ```
 
+
+```{r}
+tree_dq_mod <- df_grouped %>% subset(DataStructure=='Tree')
+tree_dq_mod <- lm(DequeueTime ~ SampleSize, data=tree_dq_mod)
+
+
+array_dq_mod <- df_grouped %>% subset(DataStructure=='Array')
+array_dq_mod <- lm(DequeueTime ~ SampleSize+SampleSize2, data=array_dq_mod)
+
+list_dq_mod <- df_grouped %>% subset(DataStructure=='LinkedList')
+list_dq_mod <- lm(DequeueTime ~ SampleSize, data=list_dq_mod)
+
+tree_dq_mod
+array_dq_mod
+list_dq_mod
+```
+
+
+# NORMALISING TIME BY INPUT SIZE
+
+
+```{r}
+df$eq_time_norm <- df$EnqueueTime / df$SampleSize
+df$dq_time_norm <- df$DequeueTime / df$SampleSize
+df$pt_time_norm <- df$PtTime / df$SampleSize
+```
+
+```{r}
+ggplot(df, aes(x = SampleSize, y = eq_time_norm, colour = DataStructure)) + 
+  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
+  stat_summary(geom = "line", fun.y = mean) +
+  stat_summary(geom = "point", fun.y = mean) +
+  ggtitle("Enqueue Time by Input Size") +
+  ylab("Enqueue Time (Seconds)") +
+  xlab("Input Size")
+```
+
+
+```{r}
+ggplot(df, aes(x = SampleSize, y = dq_time_norm, colour = DataStructure)) + 
+  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
+  stat_summary(geom = "line", fun.y = mean) +
+  stat_summary(geom = "point", fun.y = mean) +
+  ggtitle("Dequeue Time by Input Size") +
+  ylab("Dequeue Time (Seconds)") +
+  xlab("Input Size")
+```
+
+```{r}
+ggplot(df, aes(x = SampleSize, y = pt_time_norm, colour = DataStructure)) + 
+  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
+  stat_summary(geom = "line", fun.y = mean) +
+  stat_summary(geom = "point", fun.y = mean) +
+  ggtitle("PT Time by Input Size") +
+  ylab("PT Time (Seconds)") +
+  xlab("Input Size")
+```
