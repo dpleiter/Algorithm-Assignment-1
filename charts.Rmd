@@ -5,7 +5,8 @@ output: html_notebook
 
 
 ```{r}
-setwd("/home/oli/Desktop/Github/Algorithms & Analysis/Algorithm-Assignment-1/in/")
+#setwd("/home/oli/Desktop/Github/Algorithms & Analysis/Algorithm-Assignment-1/in/")
+setwd("C:\\Users\\olive\\Desktop\\GitHub\\Algorithms-Analysis\\Algorithm-Assignment-1\\in")
 df <- read.csv("results.txt", header=TRUE, sep=",")
 ```
 
@@ -31,9 +32,10 @@ df_grouped
 ```{r}
 library(ggplot2)
 eq_plt <- ggplot(df, aes(x = SampleSize, y = EnqueueTime, colour = DataStructure)) + 
-  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
+#  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
+  geom_smooth(method='lm', formula= y ~ x) +
   ggtitle("Enqueue Time by Input Size") +
   ylab("Enqueue Time (Seconds)") +
   xlab("Input Size")
@@ -61,9 +63,10 @@ list_eq_mod
 
 ```{r}
 pt_plt <- ggplot(df, aes(x = SampleSize, y = PtTime, colour = DataStructure)) + 
-  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
+#  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +  
+  geom_smooth(method='lm', formula= y ~ x) +
   ggtitle("PT Time by Input Size") +
   ylab("PT Time (Seconds)") +
   xlab("Input Size")
@@ -87,10 +90,13 @@ list_pt_mod
 
 
 ```{r}
+#install.packages("Hmisc")
+#library(Hmisc)
 dq_plt <- ggplot(df, aes(x = SampleSize, y = DequeueTime, colour = DataStructure)) + 
-  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
+#  stat_summary(geom = "ribbon", fun.data = mean_cl_normal, width = 0.1, conf.int = 0.95) +
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
+  geom_smooth(method='lm', formula= y ~ x) +
   ggtitle("Dequeue Time by Input Size") +
   ylab("Dequeue Time (Seconds)") +
   xlab("Input Size")
