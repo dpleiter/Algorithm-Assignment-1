@@ -119,38 +119,36 @@ public class OrderedLinkedListRQ implements Runqueue {
 
 	@Override
 	public int precedingProcessTime(String procLabel) {
-		Proc proc = getProcByLabel(procLabel);
+		Proc currProc = this.mHead;
 		int sum = 0;
 
-		if (proc == null) {
-			return -1;
+		while (currProc != null) {
+			if (currProc.getProcLabel().compareTo(procLabel) == 0) {
+				return sum;
+			}
+
+			sum += currProc.getRunTime();
+			currProc = currProc.getNext();
 		}
 
-		while (proc.getPrev() != null) {
-			proc = proc.getPrev();
-
-			sum += proc.getRunTime();
-		}
-
-		return sum;
+		return -1;
 	} // end of precedingProcessTime()
 
 	@Override
 	public int succeedingProcessTime(String procLabel) {
-		Proc proc = getProcByLabel(procLabel);
+		Proc currProc = this.mTail;
 		int sum = 0;
 
-		if (proc == null) {
-			return -1;
+		while (currProc != null) {
+			if (currProc.getProcLabel().compareTo(procLabel) == 0) {
+				return sum;
+			}
+
+			sum += currProc.getRunTime();
+			currProc = currProc.getPrev();
 		}
 
-		while (proc.getNext() != null) {
-			proc = proc.getNext();
-
-			sum += proc.getRunTime();
-		}
-
-		return sum;
+		return -1;
 	} // end of precedingProcessTime()
 
 	@Override
