@@ -1,12 +1,12 @@
+package generation;
+
 import java.io.*;
 import java.util.Random;
 
-/**
- * Generates collection of integers from sampling a uniform distribution.
- *
- * @author Jeffrey Chan
- */
-public class DataGenerator2 {
+// Run from main source folder
+// java generation/DataGenerator 100
+
+public class DataGenerator {
 	/** Program name. */
 	private static final String progName = "DataGenerator";
 
@@ -24,7 +24,7 @@ public class DataGenerator2 {
 	 * @param endOfRange   End of integer range to generate values.
 	 * @throws IllegalArgumentException If range of integers is inappropriate
 	 */
-	public DataGenerator2(int startOfRange, int endOfRange) throws IllegalArgumentException {
+	public DataGenerator(int startOfRange, int endOfRange) throws IllegalArgumentException {
 		if (startOfRange < 0 || endOfRange < 0 || startOfRange > endOfRange) {
 			throw new IllegalArgumentException("startOfRange or endOfRange is invalid.");
 		}
@@ -45,7 +45,7 @@ public class DataGenerator2 {
 	 * @throws IllegalArgumentException When sampleSize is greater than the valid
 	 *                                  integer range.
 	 */
-	public int[] sampleWithOutReplacement(int sampleSize) throws IllegalArgumentException {
+	public int[] sampleWithoutReplacement(int sampleSize) throws IllegalArgumentException {
 		int populationSize = intervalSize - startOfRange + 1;
 
 		if (sampleSize > populationSize) {
@@ -70,7 +70,6 @@ public class DataGenerator2 {
 		return samples;
 	} // end of sampleWithOutReplacement()
 
-	
 	public int[] sampleWithReplacement(int sampleSize) {
 		int[] samples = new int[sampleSize];
 
@@ -83,8 +82,7 @@ public class DataGenerator2 {
 
 	// Message to display on error
 	public static void usage() {
-		System.err.println(progName
-				+ " <number of values to sample>");
+		System.err.println(progName + " <number of values to sample>");
 		System.exit(1);
 	} // end of usage()
 
@@ -97,31 +95,32 @@ public class DataGenerator2 {
 		try {
 			// Range of Labels
 			int startOfRange = 0;
-			int endOfRange = 50000;
-			
+			int endOfRange = 100000; // Max output size
+
+			// Range of vt's
 			int startOfTimeRange = 1;
 			int endOfTimeRange = 100;
 
 			// number of values to sample
 			int sampleSize = Integer.parseInt(args[0]);
 
-			DataGenerator2 labelGen = new DataGenerator2(startOfRange, endOfRange);
-			int[] procLabels = labelGen.sampleWithOutReplacement(sampleSize);
-			
-			DataGenerator2 timeGen = new DataGenerator2(startOfTimeRange, endOfTimeRange);
+			DataGenerator labelGen = new DataGenerator(startOfRange, endOfRange);
+			int[] procLabels = labelGen.sampleWithoutReplacement(sampleSize);
+
+			DataGenerator timeGen = new DataGenerator(startOfTimeRange, endOfTimeRange);
 			int[] procRunTimes = timeGen.sampleWithReplacement(sampleSize);
 
 			// Write samples to file
 			StringBuilder en = new StringBuilder();
 			StringBuilder pt = new StringBuilder();
 			StringBuilder de = new StringBuilder();
-			
-			for(int i = 0; i < sampleSize; i++) {
+
+			for (int i = 0; i < sampleSize; i++) {
 				en.append("EN P" + procLabels[i] + " " + procRunTimes[i] + "\n");
 				pt.append("PT P" + procLabels[i] + "\n");
 				de.append("DE\n");
 			}
-			
+
 			StringBuilder processes = en.append(pt).append(de);
 			PrintWriter writer = new PrintWriter("in/processes_" + sampleSize + ".txt", "UTF-8");
 			writer.print(processes);
