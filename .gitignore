@@ -3,3 +3,6 @@
 *.class
 *.txt
 !in/*.txt
+.Rhistory
+.project
+.classpath
