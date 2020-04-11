@@ -127,9 +127,7 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         public void addChild(Proc nodeToAdd) {
-            if (nodeToAdd.getVt() == this.vt) {
-                addDuplicateProc(nodeToAdd);
-            } else if (nodeToAdd.getVt() < this.vt) {
+            if (nodeToAdd.getVt() < this.vt) {
                 if (this.left == null) {
                     this.left = nodeToAdd;
                     this.left.setParent(this);
@@ -137,29 +135,12 @@ public class BinarySearchTreeRQ implements Runqueue {
                     this.left.addChild(nodeToAdd);
                 }
             } else {
+                // IMPORTANT: An equal node should get added to the right
                 if (this.right == null) {
                     this.right = nodeToAdd;
                     this.right.setParent(this);
                 } else {
                     this.right.addChild(nodeToAdd);
-                }
-            }
-        }
-
-        public void addDuplicateProc(Proc nodeToAdd) {
-            if (nodeToAdd.getVt() == this.vt) {
-                if (this.right == null) {
-                    nodeToAdd.setParent(this);
-                    this.right = nodeToAdd;
-                } else {
-                    this.right.addDuplicateProc(nodeToAdd);
-                }
-            } else {
-                if (this.left == null) {
-                    nodeToAdd.setParent(this);
-                    this.left = nodeToAdd;
-                } else {
-                    this.left.addDuplicateProc(nodeToAdd);
                 }
             }
         }
