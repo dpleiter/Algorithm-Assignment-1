@@ -4,39 +4,37 @@ output: html_notebook
 ---
 
 ```{r}
-df <- read.csv("in\\dillon_results.csv", col.names = c('DataStructure', 'Operation', 'Iteration', 'Block', 'Time'))
+df <- read.csv("out\\experiment_timing.csv", col.names = c('DataStructure', 'Operation', 'Iteration', 'Block', 'Time'))
 
+df$Time <- df$Time * 1000
 df$PtNormTime <- df$Time / df$Block
 ```
 
 
 ```{r}
 library(ggplot2)
-tree_eq <- ggplot(data = subset(df, DataStructure == 'Tree' & Operation == 'Enqueue'), aes(x=Block, y = Time)) + 
-  stat_summary(geom = "line", fun.y = mean) +
-  stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
+tree_eq <- ggplot(data = subset(df, DataStructure == 'Tree' & Operation == 'Enqueue' & Block < 50), aes(x=Block, y = Time)) + 
+  stat_summary(geom = "line", fun.y = median) +
+  stat_summary(geom = "point", fun.y = median) +
   ggtitle("Enqueue Time") +
-  ylab("Enqueue Time (Seconds)") +
-  xlab("After Input (thousands '000)") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 
-tree_dq <- ggplot(data = subset(df, DataStructure == 'Tree' & Operation == 'Dequeue'), aes(x=Block, y = Time)) + 
-  stat_summary(geom = "line", fun.y = mean) +
-  stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
+tree_dq <- ggplot(data = subset(df, DataStructure == 'Tree' & Operation == 'Dequeue' & Block < 50), aes(x=Block, y = Time)) + 
+  stat_summary(geom = "line", fun.y = median) +
+  stat_summary(geom = "point", fun.y = median) +
   ggtitle("Dequeue Time") +
-  ylab("Dequeue Time (Seconds)") +
-  xlab("After Input (thousands '000)") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 
 tree_pt <- ggplot(subset(df, DataStructure == 'Tree' & Operation == 'PT'), aes(x = Block, y = PtNormTime)) + 
-  stat_summary(geom = "line", fun.y = mean) +
-  stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
-  ggtitle("Pt Time by Input Size") +
-  ylab("Pt Time (Seconds)") +
-  xlab("Input Size") +
+  stat_summary(geom = "line", fun.y = median) +
+  stat_summary(geom = "point", fun.y = median) +
+  ggtitle("Calculate Preceeding Time") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 ```
 
@@ -47,31 +45,28 @@ grid.arrange(tree_eq, tree_dq, tree_pt, ncol=2, nrow=2)
 
 
 ```{r}
-array_eq <- ggplot(data = subset(df, DataStructure == 'Array' & Operation == 'Enqueue'), aes(x=Block, y = Time)) + 
+array_eq <- ggplot(data = subset(df, DataStructure == 'Array' & Operation == 'Enqueue' & Block < 50), aes(x=Block, y = Time)) + 
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
   ggtitle("Enqueue Time") +
-  ylab("Enqueue Time (Seconds)") +
-  xlab("After Input (thousands '000)") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 
-array_dq <- ggplot(data = subset(df, DataStructure == 'Array' & Operation == 'Dequeue'), aes(x=Block, y = Time)) + 
+array_dq <- ggplot(data = subset(df, DataStructure == 'Array' & Operation == 'Dequeue' & Block < 50), aes(x=Block, y = Time)) + 
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
   ggtitle("Dequeue Time") +
-  ylab("Dequeue Time (Seconds)") +
-  xlab("After Input (thousands '000)") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 
 array_pt <- ggplot(subset(df, DataStructure == 'Array' & Operation == 'PT'), aes(x = Block, y = PtNormTime)) + 
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
-  ggtitle("Pt Time by Input Size") +
-  ylab("Pt Time (Seconds)") +
-  xlab("Input Size") +
+  ggtitle("Calculate Preceeding Time") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 ```
 
@@ -82,31 +77,28 @@ grid.arrange(array_eq, array_dq, array_pt, ncol=2, nrow=2)
 
 
 ```{r}
-list_eq <- ggplot(data = subset(df, DataStructure == 'LinkedList' & Operation == 'Enqueue'), aes(x=Block, y = Time)) + 
+list_eq <- ggplot(data = subset(df, DataStructure == 'LinkedList' & Operation == 'Enqueue' & Block < 50), aes(x=Block, y = Time)) + 
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
   ggtitle("Enqueue Time") +
-  ylab("Enqueue Time (Seconds)") +
-  xlab("After Input (thousands '000)") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 
-list_dq <- ggplot(data = subset(df, DataStructure == 'LinkedList' & Operation == 'Dequeue'), aes(x=Block, y = Time)) + 
+list_dq <- ggplot(data = subset(df, DataStructure == 'LinkedList' & Operation == 'Dequeue' & Block < 50), aes(x=Block, y = Time)) + 
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
   ggtitle("Dequeue Time") +
-  ylab("Dequeue Time (Seconds)") +
-  xlab("After Input (thousands '000)") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 
 list_pt <- ggplot(subset(df, DataStructure == 'LinkedList' & Operation == 'PT'), aes(x = Block, y = PtNormTime)) + 
   stat_summary(geom = "line", fun.y = mean) +
   stat_summary(geom = "point", fun.y = mean) +
-  geom_smooth(method = 'lm', formula = y ~ x) +
-  ggtitle("Pt Time by Input Size") +
-  ylab("Pt Time (Seconds)") +
-  xlab("Input Size") +
+  ggtitle("Calculate Preceeding Time") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 ```
 
