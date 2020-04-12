@@ -3,31 +3,34 @@ import java.io.PrintWriter;
 import java.lang.String;
 
 /**
- * Implementation of the run queue interface using an Ordered Link List.
+ * Implementation of the run queue interface using an Ordered Link List. *
+ * Originally written by @author Sajal Halder, Minyi Li, Jeffrey Chan
  *
- * Your task is to complete the implementation of this class. You may add
- * methods and attributes, but ensure your modified class compiles and runs.
- *
- * @author Sajal Halder, Minyi Li, Jeffrey Chan.
+ * Appropiated for Assignment 1 by @author Oliver Eaton
  */
 public class OrderedLinkedListRQ implements Runqueue {
+
 
 	/** Reference to head node. */
 	private Proc mHead;
 
+
 	/** Reference to tail of list. */
 	private Proc mTail;
 
-	/** Length of list. */
 
-	/**
-	 * Constructs empty linked list
-	 */
+	/** Constructs empty linked list */
 	public OrderedLinkedListRQ() {
 		this.mHead = null;
 		this.mTail = null;
 	} // end of OrderedLinkedList()
 
+
+	/**
+	 * Enqueue process into linked list.
+	 *
+     * @param process label and it's runtime to enqueue.
+     */
 	@Override
 	public void enqueue(String procLabel, int vt) {
 		Proc newProc = new Proc(procLabel, vt);
@@ -68,6 +71,12 @@ public class OrderedLinkedListRQ implements Runqueue {
 		}
 	} // end of enqueue()
 
+
+	/**
+	 * Dequeue process from linked list.
+	 *
+	 * @return label of dequeued process.
+     */
 	@Override
 	public String dequeue() {
 		Proc procToDequeue = this.mHead;
@@ -84,11 +93,26 @@ public class OrderedLinkedListRQ implements Runqueue {
 		return procToDequeue.getProcLabel();
 	} // end of dequeue()
 
+
+	/**
+	 * Find process in linked list.
+	 * Utlises getProcByLabel() method.
+	 *
+     * @param process label to find.
+	 * @return true if label found, false if not found.
+     */
 	@Override
 	public boolean findProcess(String procLabel) {
 		return getProcByLabel(procLabel) != null;
 	} // end of findProcess()
 
+
+	/**
+	 * Remove process from linked list.
+	 *
+     * @param process label to remove.
+	 * @return true if process removed, false if not removed.
+     */
 	@Override
 	public boolean removeProcess(String procLabel) {
 		Proc procToRemove = getProcByLabel(procLabel);
@@ -117,6 +141,13 @@ public class OrderedLinkedListRQ implements Runqueue {
 		return true;
 	} // End of removeProcess()
 
+
+	/**
+	 * Calculate total preceeding runtime
+	 *
+     * @param process label to calculate runtime prior to.
+	 * @return value of total preceeding runtime if label found, otherwise -1.
+     */
 	@Override
 	public int precedingProcessTime(String procLabel) {
 		Proc currProc = this.mHead;
@@ -134,6 +165,13 @@ public class OrderedLinkedListRQ implements Runqueue {
 		return -1;
 	} // end of precedingProcessTime()
 
+
+	/**
+	 * Calculate total succeeding runtime
+	 *
+     * @param process label to calculate runtime succeeding from.
+	 * @return value of total preceeding runtime if label found, otherwise -1.
+     */
 	@Override
 	public int succeedingProcessTime(String procLabel) {
 		Proc currProc = this.mTail;
@@ -151,6 +189,12 @@ public class OrderedLinkedListRQ implements Runqueue {
 		return -1;
 	} // end of precedingProcessTime()
 
+
+	/**
+	 * Print processes in linked list.
+	 *
+     * @param print writer object.
+     */
 	@Override
 	public void printAllProcesses(PrintWriter os) {
 		String processes = "";
@@ -164,7 +208,15 @@ public class OrderedLinkedListRQ implements Runqueue {
 		os.println(processes.trim());
 	} // end of printAllProcess()
 
-	// Helper method
+
+
+	/**
+	 * Helper method: get a Proc obejct by it's label
+	 * Used in conjunction with removeProcess(String procLabel) and findProcess(String procLabel).
+	 *
+     * @param process label.
+	 * @return Proc object with label = procLabel.
+     */
 	private Proc getProcByLabel(String proclabel) {
 		Proc currentProc = this.mHead;
 
@@ -179,7 +231,13 @@ public class OrderedLinkedListRQ implements Runqueue {
 		return null;
 	}
 
+
+	/**
+	 * Inner class: Proc.
+	 * Proc object used in conjuction with OrderedArrayRQ class.
+     */
 	private class Proc {
+		
 		/** Process Label. */
 		protected String mProcLabel;
 
@@ -192,6 +250,7 @@ public class OrderedLinkedListRQ implements Runqueue {
 		/** Reference to previous node. */
 		private Proc mPrev;
 
+		/** Proc constrcutor. */
 		public Proc(String procLabel, int vt) {
 			mProcLabel = procLabel;
 			mVt = vt;
@@ -199,26 +258,32 @@ public class OrderedLinkedListRQ implements Runqueue {
 			mPrev = null;
 		}
 
+		/** Return process label. */
 		public String getProcLabel() {
 			return mProcLabel;
 		}
 
+		/** Return process run time. */
 		public int getRunTime() {
 			return mVt;
 		}
 
+		/** Return process's proceeding process  */
 		public Proc getNext() {
 			return mNext;
 		}
 
+		/** Return process's preceeding process  */
 		public Proc getPrev() {
 			return mPrev;
 		}
 
+		/** Set process's proceeding process  */
 		public void setNext(Proc next) {
 			mNext = next;
 		}
 
+		/** Set process's preceeding process  */
 		public void setPrev(Proc prev) {
 			mPrev = prev;
 		}

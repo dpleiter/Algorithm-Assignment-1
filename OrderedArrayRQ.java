@@ -3,22 +3,28 @@ import java.lang.String;
 
 /**
  * Implementation of the Runqueue interface using an Ordered Array.
+ * Originally written by @author Sajal Halder, Minyi Li, Jeffrey Chan
  *
- * Your task is to complete the implementation of this class. You may add
- * methods and attributes, but ensure your modified class compiles and runs.
- *
- * @author Sajal Halder, Minyi Li, Jeffrey Chan
+ * Appropiated for Assignment 1 by @author Oliver Eaton
  */
 public class OrderedArrayRQ implements Runqueue {
+
+
+	/** Initialise empty array of type Proc. */
 	private Proc array[];
 
-	/**
-	 * Constructs empty queue
-	 */
+
+	/** Constructs empty queue. */
 	public OrderedArrayRQ() {
 		array = null;
-	} // end of OrderedArrayRQ()
+	} // end of constructor OrderedArrayRQ()
 
+	
+	/**
+	 * Enqueue process into array.
+	 *
+     * @param process label and it's runtime to enqueue.
+     */
 	@Override
 	public void enqueue(String procLabel, int vt) {
 		Proc enqueuedProc = new Proc(procLabel, vt);
@@ -28,6 +34,7 @@ public class OrderedArrayRQ implements Runqueue {
 		} else {
 			Proc[] tempArray = new Proc[array.length + 1];
 
+			// Utiliste getPosition() helper method.
 			Integer position = getPosition(vt);
 
 			for (int i = 0; i < position; i++) {
@@ -44,6 +51,14 @@ public class OrderedArrayRQ implements Runqueue {
 		}
 	} // end of enqueue()
 
+
+	/**
+	 * Dequeue process from array.
+	 *
+	 * @return label of dequeued process.
+	 *
+     * @throws NullPointerException when array is empty.
+     */
 	@Override
 	public String dequeue() throws NullPointerException {
 		if (array == null) {
@@ -66,6 +81,13 @@ public class OrderedArrayRQ implements Runqueue {
 		return dequeuedProc.getProcLabel();
 	} // end of dequeue()
 
+
+	/**
+	 * Find process in array.
+	 *
+     * @param process label to find.
+	 * @return true if label found, false if not found.
+     */
 	@Override
 	public boolean findProcess(String procLabel) {
 		// Implement me
@@ -78,6 +100,15 @@ public class OrderedArrayRQ implements Runqueue {
 		return false;
 	} // end of findProcess()
 
+
+	/**
+	 * Remove process from array.
+	 *
+     * @param process label to remove.
+	 * @return true if process removed, false if not removed.
+	 *
+	 * @throws NullPointerException when array is empty.
+     */
 	@Override
 	public boolean removeProcess(String procLabel) throws NullPointerException {
 		if (array == null)
@@ -108,6 +139,13 @@ public class OrderedArrayRQ implements Runqueue {
 		return true;
 	} // end of removeProcess()
 
+
+	/**
+	 * Calculate total preceeding runtime
+	 *
+     * @param process label to calculate runtime prior to.
+	 * @return value of total preceeding runtime.
+     */
 	@Override
 	public int precedingProcessTime(String procLabel) {
 		int preceedingRunTime = 0;
@@ -124,6 +162,13 @@ public class OrderedArrayRQ implements Runqueue {
 		return preceedingRunTime;
 	}// end of precedingProcessTime()
 
+
+	/**
+	 * Calculate total succeeding runtime
+	 *
+     * @param process label to calculate runtime succeeding from.
+	 * @return value of total succeeding runtime.
+     */
 	@Override
 	public int succeedingProcessTime(String procLabel) {
 		int proceedingRunTime = 0;
@@ -140,6 +185,12 @@ public class OrderedArrayRQ implements Runqueue {
 		return proceedingRunTime;
 	} // end of precedingProcessTime()
 
+
+	/**
+	 * Print processes in array.
+	 *
+     * @param print writer object.
+     */
 	@Override
 	public void printAllProcesses(PrintWriter os) {
 		for (int i = 0; i < array.length; i++) {
@@ -148,7 +199,14 @@ public class OrderedArrayRQ implements Runqueue {
 		os.print("\n");
 	} // end of printAllProcesses()
 
-	// 
+
+	/**
+	 * Helper method: Determine index of provided process label.
+	 * Used in conjunction with removeProcess(String procLabel).
+	 *
+     * @param process label.
+	 * @return index of provided process.
+     */
 	public Integer getPosition(String procLabel) {
 		for (int i = 0; i < array.length; i++) {
 			if (procLabel.equalsIgnoreCase(array[i].getProcLabel())) {
@@ -159,6 +217,14 @@ public class OrderedArrayRQ implements Runqueue {
 		return null;
 	}
 
+
+	/**
+	 * Helper method: Determine appropiate enqueue index of process.
+	 * Used in conjunction with enqueue(String procLabel, int vt).
+	 *
+     * @param runtime of process.
+	 * @return index to insert process within array.
+     */
 	public Integer getPosition(int vt) {
 		
         int first = 0;
@@ -187,22 +253,31 @@ public class OrderedArrayRQ implements Runqueue {
 	
 	}
 
+
+	/**
+	 * Inner class: Proc.
+	 * Proc object used in conjuction with OrderedArrayRQ class.
+     */
 	private class Proc {
+		
 		/** Process Label. */
 		private String mProcLabel;
 
 		/** Process RunTime. */
 		private int vt;
 
+		/** Proc constrcutor. */
 		public Proc(String procLabel, int vt) {
 			this.mProcLabel = procLabel;
 			this.vt = vt;
 		}
 
+		/** Return process label. */
 		public String getProcLabel() {
 			return mProcLabel;
 		}
 
+		/** Return process runtime. */
 		public int getRunTime() {
 			return vt;
 		}
