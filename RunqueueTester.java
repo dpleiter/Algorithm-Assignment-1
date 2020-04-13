@@ -218,6 +218,8 @@ public class RunqueueTester {
 
                 // process the operations
                 processOperations(inReader, queue, outWriter);
+
+                outWriter.close();
             } catch (FileNotFoundException ex) {
                 System.err.println("One of the specified files not found.");
             } catch (IOException ex) {
@@ -232,8 +234,6 @@ public class RunqueueTester {
 
                 // process the operations
                 processOperations(inReader, queue, outWriter);
-
-                outWriter.close();
             } catch (IOException ex) {
                 System.err.println(ex.getMessage());
             } // end of try-catch block
