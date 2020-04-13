@@ -2,37 +2,30 @@ import java.io.PrintWriter;
 import java.lang.String;
 
 /**
- * Implementation of the Runqueue interface using a Binary Search Tree.
- *
- * Your task is to complete the implementation of this class. You may add
- * methods and attributes, but ensure your modified class compiles and runs.
- *
- * @author Sajal Halder, Minyi Li, Jeffrey Chan
+ * AVL Binary Search Tree by @author Dylan Pleiter
  */
 public class BinarySearchTreeRQ implements Runqueue {
     private Proc head;
 
-    public BinarySearchTreeRQ() {
-        this.head = null;
-    } // end of BinarySearchTreeRQ()
+    // No constructer needed. Initialise upon first enqueue
 
     @Override
     public void enqueue(String procLabel, int vt) {
-        Proc nodeToAdd = new Proc(procLabel, vt);
+        Proc procToAdd = new Proc(procLabel, vt);
         if (head == null) {
-            this.head = nodeToAdd;
+            this.head = procToAdd;
         } else {
-            this.head.addChild(nodeToAdd);
+            this.head.addChild(procToAdd);
         }
 
-        this.head = nodeToAdd.rebalanceTree(null, null, false);
-    }
+        this.head = procToAdd.rebalanceTree(null, null, false);
+    } // end of enqueue
 
     @Override
     public String dequeue() {
-        Proc nodeToDequeue = this.head.findMinimumVt();
+        Proc procToDequeue = this.head.findMinimumVt();
 
-        if (nodeToDequeue == this.head) {
+        if (procToDequeue == this.head) {
             // Guaranteed to have no left children
             this.head = this.head.getRight();
 
@@ -41,14 +34,14 @@ public class BinarySearchTreeRQ implements Runqueue {
                 this.head.setParent(null);
             }
 
-            return nodeToDequeue.getProcLabel();
+            return procToDequeue.getProcLabel();
         }
 
-        nodeToDequeue.dequeue();
+        procToDequeue.dequeue();
 
-        this.head = nodeToDequeue.getParent().rebalanceTree(null, null, false);
+        this.head = procToDequeue.getParent().rebalanceTree(null, null, false);
 
-        return nodeToDequeue.getProcLabel();
+        return procToDequeue.getProcLabel();
     } // end of dequeue()
 
     @Override
@@ -58,20 +51,21 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public boolean removeProcess(String procLabel) {
-        Proc node = this.head.getProcByLabel(procLabel);
+        Proc procToRemove = this.head.getProcByLabel(procLabel);
 
-        if (node == null) {
+        if (procToRemove == null) {
             return false;
         }
 
-        Proc newNode = node.removeProcess();
+        // detatch node and return node to take its place as root of subtree
+        Proc newProc = procToRemove.removeProcess();
 
-        if (node == this.head) {
-            this.head = newNode;
-        } else if (node.getParent().getLeft() == node) {
-            node.getParent().setLeft(newNode);
+        if (procToRemove == this.head) {
+            this.head = newProc;
+        } else if (procToRemove.getParent().getLeft() == procToRemove) {
+            procToRemove.getParent().setLeft(newProc);
         } else {
-            node.getParent().setRight(newNode);
+            procToRemove.getParent().setRight(newProc);
         }
 
         this.head = this.head.rebalanceTree();
@@ -81,24 +75,24 @@ public class BinarySearchTreeRQ implements Runqueue {
 
     @Override
     public int precedingProcessTime(String procLabel) {
-        Proc node = this.head.getProcByLabel(procLabel);
+        Proc proc = this.head.getProcByLabel(procLabel);
 
-        if (node == null) {
+        if (proc == null) {
             return -1;
         }
 
-        return node.calcTimeOfPreceeding(null);
+        return proc.calcTimeOfPreceding(null);
     } // end of precedingProcessTime()
 
     @Override
     public int succeedingProcessTime(String procLabel) {
-        Proc node = this.head.getProcByLabel(procLabel);
+        Proc proc = this.head.getProcByLabel(procLabel);
 
-        if (node == null) {
+        if (proc == null) {
             return -1;
         }
 
-        return node.calcTimeOfSucceeding(null);
+        return proc.calcTimeOfSucceeding(null);
     } // end of precedingProcessTime()
 
     @Override
@@ -119,31 +113,28 @@ public class BinarySearchTreeRQ implements Runqueue {
 
         public Proc(String procLabel, int vt) {
             this.vt = vt;
-
             this.procLabel = procLabel;
-
-            this.left = null;
-            this.right = null;
         }
 
-        public void addChild(Proc nodeToAdd) {
-            if (nodeToAdd.getVt() < this.vt) {
+        public void addChild(Proc procToAdd) {
+            // Add new process as a leaf ndoe
+            if (procToAdd.getVt() < this.vt) {
                 if (this.left == null) {
-                    this.left = nodeToAdd;
+                    this.left = procToAdd;
                     this.left.setParent(this);
                 } else {
-                    this.left.addChild(nodeToAdd);
+                    this.left.addChild(procToAdd);
                 }
             } else {
-                // IMPORTANT: An equal node should get added to the right
+                // IMPORTANT: An equal process should be added to right subtree
                 if (this.right == null) {
-                    this.right = nodeToAdd;
+                    this.right = procToAdd;
                     this.right.setParent(this);
                 } else {
-                    this.right.addChild(nodeToAdd);
+                    this.right.addChild(procToAdd);
                 }
             }
-        }
+        } // end of addChild()
 
         public void dequeue() {
             if (this.parent != null) {
@@ -154,7 +145,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             if (this.right != null) {
                 this.right.setParent(this.parent);
             }
-        }
+        }// end of dequeue
 
         public Boolean findProcLabel(String procLabel) {
             if (this.procLabel.compareTo(procLabel) == 0) {
@@ -163,48 +154,49 @@ public class BinarySearchTreeRQ implements Runqueue {
 
             return (this.left != null && this.left.findProcLabel(procLabel))
                     || (this.right != null && this.right.findProcLabel(procLabel));
-        }
+        } // end of findProcLabel
 
         public Proc removeProcess() {
-            // delete node
             int leftHeight = this.left == null ? -1 : this.left.getHeight();
             int rightHeight = this.right == null ? -1 : this.right.getHeight();
 
-            Proc replacementNode;
+            Proc replacementProc;
 
+            // replace as root a process from the larger subtree (in terms of height)
             if (this.height == 0) {
                 // leaf node
                 return null;
             } else if (leftHeight > rightHeight) {
-                replacementNode = this.left.findMaximumVt();
+                replacementProc = this.left.findMaximumVt();
 
-                if (this.left != replacementNode) {
-                    replacementNode.getParent().setRight(replacementNode.getLeft());
-                    replacementNode.setLeft(this.left);
+                if (this.left != replacementProc) {
+                    replacementProc.getParent().setRight(replacementProc.getLeft());
+                    replacementProc.setLeft(this.left);
                 }
 
-                replacementNode.setRight(this.right);
+                replacementProc.setRight(this.right);
             } else {
-                replacementNode = this.right.findMinimumVt();
+                replacementProc = this.right.findMinimumVt();
 
-                if (this.right != replacementNode) {
-                    replacementNode.getParent().setLeft(replacementNode.getRight());
-                    replacementNode.setRight(this.right);
+                if (this.right != replacementProc) {
+                    replacementProc.getParent().setLeft(replacementProc.getRight());
+                    replacementProc.setRight(this.right);
                 }
 
-                replacementNode.setLeft(this.left);
+                replacementProc.setLeft(this.left);
             }
 
-            replacementNode.setParent(this.parent);
+            replacementProc.setParent(this.parent);
 
-            return replacementNode;
-        }
+            return replacementProc;
+        } // end of remove process
 
-        public int calcTimeOfPreceeding(Proc callingNode) {
+        public int calcTimeOfPreceding(Proc callingNode) {
             int leftChildTime;
             int parentTime;
             int thisTime;
 
+            // determine if we should include this process and subtree in calculation
             if (callingNode == null) {
                 // Initial call of method
                 thisTime = 0;
@@ -217,19 +209,21 @@ public class BinarySearchTreeRQ implements Runqueue {
                 leftChildTime = this.left == null ? 0 : this.left.findTimeOfTree();
             }
 
+            // now trace up to the head process
             if (this.parent == null) {
                 return thisTime + leftChildTime;
             } else {
-                parentTime = this.parent.calcTimeOfPreceeding(this);
+                parentTime = this.parent.calcTimeOfPreceding(this);
                 return leftChildTime + parentTime + thisTime;
             }
-        }
+        } // end of calcTimeOfPreceding
 
         public int calcTimeOfSucceeding(Proc callingNode) {
             int rightChildTime;
             int parentTime;
             int thisTime;
 
+            // determine if we should include this process and subtree in calculation
             if (callingNode == null) {
                 // Initial call of method
                 thisTime = 0;
@@ -242,13 +236,14 @@ public class BinarySearchTreeRQ implements Runqueue {
                 rightChildTime = this.right == null ? 0 : this.right.findTimeOfTree();
             }
 
+            // now trace up to the head process
             if (this.parent == null) {
                 return thisTime + rightChildTime;
             } else {
                 parentTime = this.parent.calcTimeOfSucceeding(this);
                 return rightChildTime + parentTime + thisTime;
             }
-        }
+        } // end of calcTimeOfSucceeding
 
         public void printTree(PrintWriter os) {
             if (this.left != null) {
@@ -260,10 +255,11 @@ public class BinarySearchTreeRQ implements Runqueue {
             if (this.right != null) {
                 this.right.printTree(os);
             }
-        }
+        } // end of printTree
 
         // ***** Helper functions *****
         public Proc getProcByLabel(String procLabel) {
+            // return the process with a given procLabel
             Proc findInLeftChild;
             Proc findInRightChild;
 
@@ -278,6 +274,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
 
             if (findInLeftChild != null) {
+                // avoids exploring right subtree if procLabel found in left
                 return findInLeftChild;
             } else if (this.right == null) {
                 findInRightChild = null;
@@ -289,7 +286,7 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         private Proc findMinimumVt() {
-            // finds minimum vt in tree and returns that node
+            // finds minimum vt in tree and returns that process
             if (this.left == null) {
                 return this;
             } else {
@@ -298,7 +295,7 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         private Proc findMaximumVt() {
-            // finds maximum vt in tree and returns that node
+            // finds maximum vt in tree and returns that process
             if (this.right == null) {
                 return this;
             } else {
@@ -307,6 +304,7 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         private int findTimeOfTree() {
+            // recursively find time of subtree with this process as the root
             int timeOfLeftChild;
             int timeOfRightChild;
 
@@ -326,7 +324,7 @@ public class BinarySearchTreeRQ implements Runqueue {
         }
 
         public Proc rebalanceTree() {
-            // Rebalance from top down (visits every node in tree)
+            // Rebalance from top down (visits every process in tree)
 
             // New root to be referenced by calling Proc
             Proc newRoot = this;
@@ -392,9 +390,38 @@ public class BinarySearchTreeRQ implements Runqueue {
             this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
 
             return isHead ? newRoot : newRoot.getParent().rebalanceTree(this, newRoot, performedRebalancing);
-        }
+        } // end of rebalanceTree()
+
+        private Proc leftRotate() {
+            // check if right child needs to be rotated before proceeding with this rotation
+            if (this.right.getLeftHeight() > this.right.getRightHeight()) {
+                this.right = this.right.rightRotate();
+            }
+
+            // new root of subtree to be pointed to by parent
+            Proc newRoot = this.right;
+
+            // Move pointers around
+            this.right = newRoot.getLeft();
+
+            if (this.right != null) {
+                this.right.setParent(this);
+            }
+
+            newRoot.setParent(this.parent);
+
+            this.parent = newRoot;
+            newRoot.setLeft(this);
+
+            // Set new heights
+            this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
+            newRoot.setHeight(Math.max(newRoot.getLeftHeight(), newRoot.getRightHeight()) + 1);
+
+            return newRoot;
+        } // end of leftRotate()
 
         private Proc rightRotate() {
+            // check if right child needs to be rotated before proceeding with this rotation
             if (this.left.getRightHeight() > this.left.getLeftHeight()) {
                 this.left = this.left.leftRotate();
             }
@@ -420,34 +447,7 @@ public class BinarySearchTreeRQ implements Runqueue {
             newRoot.setHeight(Math.max(newRoot.getLeftHeight(), newRoot.getRightHeight()) + 1);
 
             return newRoot;
-        }
-
-        private Proc leftRotate() {
-            if (this.right.getLeftHeight() > this.right.getRightHeight()) {
-                this.right = this.right.rightRotate();
-            }
-
-            // new root of subtree to be pointed to by parent
-            Proc newRoot = this.right;
-
-            // Move pointers around
-            this.right = newRoot.getLeft();
-
-            if (this.right != null) {
-                this.right.setParent(this);
-            }
-
-            newRoot.setParent(this.parent);
-
-            this.parent = newRoot;
-            newRoot.setLeft(this);
-
-            // Set new heights
-            this.height = Math.max(getLeftHeight(), getRightHeight()) + 1;
-            newRoot.setHeight(Math.max(newRoot.getLeftHeight(), newRoot.getRightHeight()) + 1);
-
-            return newRoot;
-        }
+        } // end of rightRotate()
 
         // ***** Getters and Setters *****
         public Proc getParent() {
@@ -490,20 +490,20 @@ public class BinarySearchTreeRQ implements Runqueue {
             }
         }
 
-        public void setParent(Proc node) {
-            this.parent = node;
+        public void setParent(Proc proc) {
+            this.parent = proc;
         }
 
-        public void setLeft(Proc node) {
-            this.left = node;
+        public void setLeft(Proc proc) {
+            this.left = proc;
         }
 
-        public void setRight(Proc node) {
-            this.right = node;
+        public void setRight(Proc proc) {
+            this.right = proc;
         }
 
         public void setHeight(int height) {
             this.height = height;
         }
-    } // end of class Node
+    } // end of class Proc
 } // end of class BinarySearchTreeRQ
