@@ -51,6 +51,9 @@ public class RunqueueTester {
         int lineNum = 1;
         boolean bQuit = false;
 
+        int enqueueCount = 1;
+        long timeStart = System.nanoTime();
+
         // continue reading in commands until we either receive the quit signal
         // or there are no more input commands from input file
         while (!bQuit && (line = inReader.readLine()) != null) {
@@ -70,12 +73,19 @@ public class RunqueueTester {
                 switch (command.toUpperCase()) {
                     // add process to queue
                     case "EN":
+                        if (enqueueCount % 1000 == 0) {
+                            System.out.println((double) (System.nanoTime() - timeStart) / Math.pow(10, 9));
+
+                            timeStart = System.nanoTime();
+                        }
+
                         if (tokens.length == 3) {
                             int vt = Integer.parseInt(tokens[2]);
                             if (vt < 0) {
                                 System.err.println(lineNum + ": process run time must be non-negative.");
                             } else {
                                 queue.enqueue(tokens[1], vt);
+                                enqueueCount++;
                             }
                         } else {
                             System.err.println(lineNum + ": incorrect number of tokens.");

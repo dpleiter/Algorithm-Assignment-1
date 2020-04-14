@@ -100,8 +100,16 @@ list_pt <- ggplot(subset(df, DataStructure == 'LinkedList' & Operation == 'PT'),
   ylab("ms per 1000") +
   xlab("Dataset Size (000's)") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
+
+list_eq_best <- ggplot(subset(df, DataStructure == 'LinkedList-best' & Operation == 'Enqueue' & Block < 50), aes(x = Block, y = Time)) + 
+  stat_summary(geom = "line", fun.y = mean) +
+  stat_summary(geom = "point", fun.y = mean) +
+  ggtitle("Enqueue Time - Best Case") +
+  ylab("ms per 1000") +
+  xlab("Dataset Size (000's)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size=15))
 ```
 
 ```{r}
-grid.arrange(list_eq, list_dq, list_pt, ncol=2, nrow=2)
+grid.arrange(list_eq, list_dq, list_pt, list_eq_best, ncol=2, nrow=2)
 ```
